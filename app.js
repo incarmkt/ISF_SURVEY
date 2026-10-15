@@ -86,7 +86,11 @@ $('#verify-form').addEventListener('submit', async (e) => {
   if (!empNo || !name) { err.textContent = '사원번호와 이름을 모두 입력해 주세요.'; err.hidden = false; return; }
 
   const res = await api({ action: 'lookup', empNo, name, agree: true });
-  if (!res.ok) { err.textContent = res.message; err.hidden = false; return; }
+  if (!res.ok || !res.name || !res.grade) {
+    err.textContent = res.message || '일시적인 오류가 발생했습니다. 다시 시도해 주세요.';
+    err.hidden = false;
+    return;
+  }
 
   state.empNo = empNo;
   state.name = name;
@@ -102,6 +106,10 @@ function openWelcome(info) {
   setText('limit', info.limit);
   setText('org', [info.division, info.partner].filter(Boolean).join(' · '));
   if (info.deadline) setText('deadline', info.deadline);
+  // 제외 부문(다이렉트 등)은 서버가 보낸 안내 문구로 표시
+  const noTitle = $('#welcome-no-title');
+  if (info.reason) noTitle.textContent = info.reason;
+  else noTitle.innerHTML = '아쉽게도 이번 ISF<br>달성 대상이 아닙니다.';
   $('#welcome-ok').hidden = !info.eligible;
   $('#welcome-no').hidden = !!info.eligible;
   $('#welcome-prev').hidden = !info.previous;

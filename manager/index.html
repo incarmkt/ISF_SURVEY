@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>2027 ISF 관리자 참석 수요조사 | 인카금융서비스</title>
+  <meta name="description" content="영업관리자 대상 2027 ISF 관리자 참석 수요조사">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <img src="../assets/incar_logo.png" alt="INCAR 인카금융서비스" class="logo">
+      <span class="eyebrow">2027 ISF 관리자 수요조사</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ⓪ 안내 시작 -->
+    <section id="screen-intro" class="screen is-active" aria-labelledby="intro-title">
+      <div class="intro">
+        <img src="../assets/isf_poster.jpg" alt="창사 이래 최대규모 초대형 크루즈 단독 행사, INCAR CRUISE" class="intro__poster">
+        <div class="intro__side">
+          <div class="card">
+            <span class="tag">영업관리자 전용</span>
+            <h1 id="intro-title" class="title-bar">2027 ISF 관리자 참석 수요조사</h1>
+            <dl class="info">
+              <div><dt>프로모션 기간</dt><dd>2026.07.01 ~ 2026.09.30</dd></div>
+              <div><dt>개최지</dt><dd>아도라 크루즈 및 일본</dd></div>
+              <div><dt>여행 시기</dt><dd>2027년 하반기 예정</dd></div>
+            </dl>
+          </div>
+          <p class="notice notice--center">
+            본 페이지는 영업관리자를 대상으로<br>
+            <strong>파트너별 관리자 참석 예상 인원을 사전에 파악</strong>하기 위한 수요조사입니다.<br><br>
+            조사 기간: <span data-text="period">10.27 ~ [마감일]</span>
+          </p>
+          <button type="button" class="btn btn--primary" data-go="verify">수요조사 시작하기</button>
+          <p class="small center">FA 수요조사는 <a href="../">FA 수요조사 페이지</a>에서 진행해 주세요.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ① 사원번호 확인 -->
+    <section id="screen-verify" class="screen" aria-labelledby="verify-title">
+      <div class="card head">
+        <div class="title-bar">
+          <h1 id="verify-title">2027 ISF 관리자 참석 수요조사</h1>
+          <p class="sub">원활한 항공·숙박 예약 관리를 위해<br>파트너별 관리자 참석 인원을 사전에 확인하고자 합니다.</p>
+        </div>
+        <ol class="steps" aria-label="진행 단계">
+          <li class="is-current"><span>01</span>관리자 확인</li>
+          <li><span>02</span>인원 입력</li>
+          <li><span>03</span>제출 완료</li>
+        </ol>
+      </div>
+
+      <form id="verify-form" class="card verify" novalidate>
+        <div class="verify__main">
+          <div class="field">
+            <label for="emp"><b>01.</b> 관리자 사원번호</label>
+            <input id="emp" name="emp" type="text" inputmode="numeric" autocomplete="off" placeholder="숫자만 입력" maxlength="12" required>
+          </div>
+          <div class="notice notice--list">
+            <span>✓ 사원번호로 담당 파트너와 관리자 TO가 자동 조회됩니다.</span>
+            <span>✓ 한 파트너에 관리자가 여러 명인 경우, 마지막으로 입력한 인원이 최종 반영됩니다.</span>
+          </div>
+        </div>
+
+        <section class="consent" aria-labelledby="consent-title">
+          <h2 id="consent-title">개인정보 수집·이용 동의</h2>
+          <div class="consent__body">
+            <div><strong>수집·이용 항목</strong><span>사원번호, 이름, 담당 파트너, 관리자 참석 예상 인원</span></div>
+            <div><strong>수집·이용 목적</strong><span>2027 ISF 참석 수요 파악 및 항공·숙박 예약 관리, 행사 관련 안내</span></div>
+            <div><strong>보유·이용 기간</strong><span>ISF 행사 종료 후 <strong>[보유 기간] 이내 파기</strong>합니다. 다만 관계 법령 또는 회사 내부 규정에 따라 별도 보존이 필요한 경우에는 해당 기간 동안 보관할 수 있습니다.</span></div>
+            <div><strong>동의 거부 안내</strong><span>개인정보 수집·이용에 동의하지 않을 권리가 있습니다. 다만 동의하지 않을 경우 수요조사 참여가 제한됩니다.</span></div>
+          </div>
+          <label class="consent__check">
+            <input id="agree" type="checkbox">
+            <span>위 개인정보 수집·이용 안내를 확인했으며 이에 동의합니다. <em>(필수)</em></span>
+          </label>
+        </section>
+
+        <div class="verify__action">
+          <p id="verify-error" class="error" role="alert" hidden></p>
+          <button id="verify-btn" type="submit" class="btn btn--primary" disabled aria-describedby="agree-hint">동의하고 조회하기</button>
+          <p id="agree-hint" class="hint-red">개인정보 수집·이용에 동의해야 다음 단계로 진행할 수 있습니다.</p>
+        </div>
+      </form>
+
+      <div class="notice">
+        <span><strong>조사 기간</strong> <span data-text="period">10.27 ~ [마감일]</span></span><br>
+        <span><strong>문의</strong> 마케팅부 [담당자 연락처]</span>
+      </div>
+    </section>
+
+    <!-- ③ 인원 입력 -->
+    <section id="screen-form" class="screen" aria-labelledby="form-title">
+      <div class="card head">
+        <div class="person">
+          <div class="title-bar">
+            <h1 id="form-title"><span data-text="name"></span>님</h1>
+            <p class="sub" data-text="partner"></p>
+          </div>
+          <span class="badge">TO <span data-text="to"></span>명</span>
+        </div>
+        <ol class="steps" aria-label="진행 단계">
+          <li><span>01</span>관리자 확인</li>
+          <li class="is-current"><span>02</span>인원 입력</li>
+          <li><span>03</span>제출 완료</li>
+        </ol>
+      </div>
+
+      <form id="count-form" class="stack" novalidate>
+        <div id="count-card" class="card">
+          <div class="row-between">
+            <label for="count"><b>01.</b> 관리자 참석 예상 인원</label>
+            <span class="pill">최대 <span data-text="to"></span>명</span>
+          </div>
+          <div class="stepper">
+            <button type="button" class="stepper__btn" data-step="-1" aria-label="1명 줄이기">−</button>
+            <input id="count" type="number" inputmode="numeric" min="0" step="1" value="0" aria-describedby="count-error">
+            <button type="button" class="stepper__btn" data-step="1" aria-label="1명 늘리기">+</button>
+          </div>
+          <div id="count-error" class="alert" role="alert" hidden>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>
+            <span><strong>관리자 TO를 초과 입력하셨습니다.</strong><br>이 파트너는 최대 <span data-text="to"></span>명까지 입력할 수 있습니다.</span>
+          </div>
+          <p id="current-note" class="small" hidden></p>
+        </div>
+
+        <p id="submit-error" class="error" role="alert" hidden></p>
+        <button id="submit-btn" type="submit" class="btn btn--primary">제출하기</button>
+      </form>
+    </section>
+
+    <!-- ④ 제출 완료 -->
+    <section id="screen-done" class="screen" aria-labelledby="done-title">
+      <div class="card head">
+        <ol class="steps" aria-label="진행 단계">
+          <li><span>01</span>관리자 확인</li>
+          <li><span>02</span>인원 입력</li>
+          <li class="is-current"><span>03</span>제출 완료</li>
+        </ol>
+      </div>
+      <div class="card done">
+        <div class="done__icon" aria-hidden="true">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </div>
+        <h1 id="done-title">제출되었습니다</h1>
+        <p class="sub">마감일(<span data-text="deadline">[마감일]</span>)까지 같은 사원번호로<br>다시 들어와 수정할 수 있습니다.</p>
+      </div>
+      <div class="card">
+        <p class="eyebrow">SUMMARY</p>
+        <dl class="summary">
+          <div><dt>파트너</dt><dd data-text="partner"></dd></div>
+          <div><dt>관리자 TO</dt><dd><span data-text="to"></span>명</dd></div>
+          <div><dt>참석 예상 인원</dt><dd class="accent" data-text="s-count"></dd></div>
+          <div><dt>입력자</dt><dd data-text="name"></dd></div>
+          <div><dt>제출 일시</dt><dd data-text="s-at"></dd></div>
+        </dl>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn--ghost" data-go="form">수정하기</button>
+        <button type="button" class="btn btn--primary" data-go="reset">처음으로</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ② 관리자 TO 안내 팝업 -->
+  <div id="welcome" class="modal" hidden>
+    <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+      <div class="modal__head">
+        <div class="ship" aria-hidden="true">
+          <svg width="36" height="36" viewBox="0 0 56 56" fill="none" stroke="#1D6FD8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 36h40l-5 8H13z"/><path d="M14 36V27h28v9"/><path d="M20 27v-7h16v7"/><path d="M28 20v-8"/><path d="M6 50c4 0 4-2 8-2s4 2 8 2 4-2 8-2 4 2 8 2 4-2 8-2 4 2 8 2"/></svg>
+        </div>
+        <span class="eyebrow">2027 ISF 관리자 수요조사</span>
+        <h2 id="welcome-title">환영합니다, <span data-text="name"></span>님.</h2>
+      </div>
+      <div class="modal__body">
+        <div id="welcome-ok">
+          <p class="big"><strong data-text="partner"></strong>의<br>관리자 TO는 <span class="badge"><span data-text="to"></span>명</span> 입니다.</p>
+          <p id="welcome-prev" class="mini-note" hidden></p>
+          <button type="button" class="btn btn--primary" data-go="form">참석 인원 입력하기</button>
+        </div>
+        <div id="welcome-no" hidden>
+          <p class="big"><strong data-text="partner"></strong></p>
+          <p id="welcome-reason" class="small center"></p>
+          <button type="button" class="btn btn--ghost" data-go="reset">처음으로</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading" class="loading" hidden><div class="spinner" role="status" aria-label="처리 중"></div></div>
+
+  <script src="manager.js"></script>
+</body>
+</html>

@@ -82,10 +82,9 @@ $('#verify-form').addEventListener('submit', async (e) => {
   if (!agree.checked) return updateAgree();
 
   const empNo = $('#emp').value.trim();
-  const name = $('#nm').value.trim();
-  if (!empNo || !name) { err.textContent = '사원번호와 이름을 모두 입력해 주세요.'; err.hidden = false; return; }
+  if (!empNo) { err.textContent = '사원번호를 입력해 주세요.'; err.hidden = false; return; }
 
-  const res = await api({ action: 'lookup', empNo, name, agree: true });
+  const res = await api({ action: 'lookup', empNo, agree: true });
   if (!res.ok || !res.name || !res.grade) {
     err.textContent = res.message || '일시적인 오류가 발생했습니다. 다시 시도해 주세요.';
     err.hidden = false;
@@ -93,7 +92,7 @@ $('#verify-form').addEventListener('submit', async (e) => {
   }
 
   state.empNo = empNo;
-  state.name = name;
+  state.name = res.name;
   state.info = res;
   state.last = res.previous || null;
   openWelcome(res);
@@ -110,6 +109,8 @@ function openWelcome(info) {
   const noTitle = $('#welcome-no-title');
   if (info.reason) noTitle.textContent = info.reason;
   else noTitle.innerHTML = '아쉽게도 이번 ISF<br>달성 대상이 아닙니다.';
+  noTitle.style.whiteSpace = info.reason ? 'pre-line' : '';
+  $('#welcome-no-sub').hidden = !!info.reason;
   $('#welcome-ok').hidden = !info.eligible;
   $('#welcome-no').hidden = !!info.eligible;
   $('#welcome-prev').hidden = !info.previous;
@@ -222,7 +223,7 @@ $('#attend-form').addEventListener('submit', async (e) => {
   const relations = attend === '참석' ? $$('#rel-list select').map((s) => s.value) : [];
 
   const res = await api({
-    action: 'submit', empNo: state.empNo, name: state.name, agree: true,
+    action: 'submit', empNo: state.empNo, agree: true,
     attend, companions, relations
   });
   if (!res.ok) { err.textContent = res.message; err.hidden = false; return; }

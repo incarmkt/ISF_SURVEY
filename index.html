@@ -7,7 +7,7 @@
   <title>2027 ISF 참석 수요조사 | 인카금융서비스</title>
   <meta name="description" content="ISF 달성자 대상 2027 ISF 참석 수요조사">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="stylesheet" href="style.css?v=20261016b">
+  <link rel="stylesheet" href="style.css?v=20261016f">
 </head>
 <body>
   <header class="topbar">
@@ -145,6 +145,14 @@
             <p class="label"><b>03.</b> 동반인과의 관계</p>
             <div id="rel-list" class="rel-grid"></div>
           </div>
+
+          <!-- 동반 가능 인원보다 적게 동반하면: 남는 인원 × 1인당 현금 시상 -->
+          <div id="pcash-card" class="card cash" hidden>
+            <span id="pcash-label" class="cash__label">미동반 인원 예상 현금 시상</span>
+            <span id="pcash-amount" class="cash__amount"></span>
+            <span id="pcash-calc" class="small"></span>
+            <p class="cash__note">1인당 140만원 기준이며,<br>최종 지급액은 실적·세금 공제에 따라 달라질 수 있습니다.</p>
+          </div>
         </div>
 
         <!-- 불참 선택 시 -->
@@ -231,6 +239,6 @@
 
   <div id="loading" class="loading" hidden><div class="spinner" role="status" aria-label="처리 중"></div></div>
 
-  <script src="app.js?v=20261016b"></script>
+  <script src="app.js?v=20261016f"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@
   <title>2027 ISF 관리자 참석 수요조사 | 인카금융서비스</title>
   <meta name="description" content="영업관리자 대상 2027 ISF 관리자 참석 수요조사">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="stylesheet" href="../style.css?v=20261016d">
+  <link rel="stylesheet" href="../style.css?v=20261016e">
 </head>
 <body>
   <header class="topbar">
@@ -116,34 +116,27 @@
       </div>
 
       <form id="count-form" class="stack" novalidate>
-        <fieldset class="card">
-          <legend><b>01.</b> 관리자 참석 여부</legend>
-          <div class="choice">
-            <label><input type="radio" name="attend" value="참석"> 참석</label>
-            <label><input type="radio" name="attend" value="불참"> 불참</label>
-          </div>
-          <p id="current-note" class="mini-note" hidden></p>
-        </fieldset>
-
-        <div id="count-card" class="card" hidden>
+        <div id="count-card" class="card">
           <div class="row-between">
-            <label for="count"><b>02.</b> 관리자 참석 예상 인원</label>
+            <label for="count"><b>01.</b> 관리자 참석 예상 인원</label>
             <span class="pill">최대 <span data-text="to"></span>명</span>
           </div>
           <div class="stepper">
             <button type="button" class="stepper__btn" data-step="-1" aria-label="1명 줄이기">−</button>
-            <input id="count" type="number" inputmode="numeric" min="1" step="1" value="1" aria-describedby="count-error">
+            <input id="count" type="number" inputmode="numeric" min="0" step="1" value="" placeholder="인원 입력" aria-describedby="count-error count-hint">
             <button type="button" class="stepper__btn" data-step="1" aria-label="1명 늘리기">+</button>
           </div>
           <div id="count-error" class="alert" role="alert" hidden>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/></svg>
             <span><strong>관리자 TO를 초과 입력하셨습니다.</strong><br>이 파트너는 최대 <span data-text="to"></span>명까지 입력할 수 있습니다.</span>
           </div>
+          <p id="count-hint" class="small center">참석하지 않으면 <strong>0명</strong>을 입력해 주세요.</p>
+          <p id="current-note" class="mini-note" hidden></p>
         </div>
 
-        <!-- 불참 선택 시에만 보이는 예상 현금 시상 -->
+        <!-- TO보다 적게 입력하면 보이는 예상 현금 시상 -->
         <div id="mcash-card" class="card cash" hidden>
-          <span class="cash__label">불참 시 예상 현금 시상</span>
+          <span id="mcash-label" class="cash__label">불참 시 예상 현금 시상</span>
           <span id="mcash-amount" class="cash__amount">0원</span>
           <span id="mcash-calc" class="small"></span>
           <p class="cash__note">관리자 TO 1명당 120만원 기준이며,<br>최종 지급액은 확정 실적에 따라 달라질 수 있습니다.</p>
@@ -177,7 +170,7 @@
         <dl class="summary">
           <div><dt>파트너</dt><dd data-text="partner"></dd></div>
           <div><dt>관리자 TO</dt><dd><span data-text="to"></span>명</dd></div>
-          <div><dt>참석 여부 · 인원</dt><dd class="accent" data-text="s-count"></dd></div>
+          <div><dt>참석 예상 인원</dt><dd class="accent" data-text="s-count"></dd></div>
           <div><dt>입력자</dt><dd data-text="name"></dd></div>
           <div><dt>제출 일시</dt><dd data-text="s-at"></dd></div>
         </dl>
@@ -206,7 +199,7 @@
             <strong id="welcome-prev-count"></strong>
             <span id="welcome-prev-by"></span>
           </div>
-          <button type="button" class="btn btn--primary" data-go="form">참석 여부 입력하기</button>
+          <button type="button" class="btn btn--primary" data-go="form">참석 인원 입력하기</button>
         </div>
         <div id="welcome-no" hidden>
           <p class="big"><strong data-text="partner"></strong></p>
@@ -219,6 +212,6 @@
 
   <div id="loading" class="loading" hidden><div class="spinner" role="status" aria-label="처리 중"></div></div>
 
-  <script src="manager.js?v=20261016d"></script>
+  <script src="manager.js?v=20261016e"></script>
 </body>
 </html>

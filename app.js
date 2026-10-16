@@ -149,7 +149,6 @@ function openWelcome(info) {
   $('#welcome-ok').hidden = !info.eligible;
   $('#welcome-no').hidden = !!info.eligible;
   $('#welcome-prev').hidden = !info.previous;
-  $('#cash-amount').textContent = info.cash || '추후 안내 예정';
   $('#welcome').hidden = false;
   $(info.eligible ? '#welcome-ok .btn' : '#welcome-no .btn').focus();
 }

@@ -89,7 +89,8 @@ fieldset.card { margin: 0; min-width: 0; }
 
 /* 안내 시작 */
 .intro { display: flex; flex-direction: column; gap: 10px; }
-.intro__poster { width: 100%; height: auto; border-radius: 16px; display: block; object-fit: cover; object-position: center top; }
+.intro__poster-wrap { display: flex; justify-content: center; align-items: center; }
+.intro__poster { width: 100%; height: auto; border-radius: 16px; display: block; }
 .intro__side { display: flex; flex-direction: column; gap: 10px; }
 .tag { align-self: flex-start; font-size: 12px; font-weight: 700; color: var(--navy); background: var(--blue-soft); border-radius: 999px; padding: 3px 10px; }
 .info { display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
@@ -195,7 +196,9 @@ input[type="text"], input[type="number"], select {
   .screen > .bottom, .screen form > .bottom { margin-top: auto; }
   /* 안내 시작: 포스터가 남는 공간만큼만 차지 */
   .intro, .intro__side { flex: 1; min-height: 0; }
-  .intro__poster { flex: 1 1 0; min-height: 110px; height: 0; }
+  /* 포스터는 자르지 않고 전체를 보여 주되, 남는 높이에 맞춰 크기만 줄임 */
+  .intro__poster-wrap { flex: 1 1 0; min-height: 120px; overflow: hidden; }
+  .intro__poster { width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
   .intro__side { flex: none; }
   .intro .bottom { margin-top: 0; }
   /* 입력 화면: 단계 표시는 첫 화면(본인 확인)에만 */

@@ -5,8 +5,11 @@ const CONFIG = {
   // Apps Script 웹 앱 주소 (배포 → 배포 관리에서 확인)
   API_URL: 'https://script.google.com/macros/s/AKfycbw9Ve3k9fg9Vb8z96iH87WusRqFfLaKgB_IrQufZNM1FB40OlXz3sBktkR2MkmD0rpmkw/exec',
   // 화면에 보이는 조사 기간 문구
-  PERIOD_TEXT: '10.27 ~ [마감일]'
+  PERIOD_TEXT: '10.27 ~ [마감일]',
+  // 참석 시 동반하지 않는 인원 1명당 현금 시상 (서버 값이 있으면 서버 값 사용)
+  CASH_PER_PERSON: 1400000
 };
+const won = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
 // ──────────────────────────────────────────────
 
 const $ = (sel) => document.querySelector(sel);
@@ -241,6 +244,19 @@ function refreshForm() {
   $('#companion-block').hidden = !going;
   $('#cash-card').hidden = attend !== '불참';
   $('#count-card').classList.toggle('is-invalid', going && !$('#count-error').hidden);
+
+  // 참석: 동반 가능 인원 중 동반하지 않는 인원 × 1인당 금액
+  const limit = state.info.limit;
+  const unused = going ? Math.max(0, limit - state.count) : 0;
+  const per = state.info.cashPerPerson || CONFIG.CASH_PER_PERSON;
+  $('#pcash-card').hidden = unused <= 0;
+  $('#pcash-amount').textContent = won(unused * per);
+  $('#pcash-label').textContent = `미동반 ${unused}명 예상 현금 시상`;
+  $('#pcash-calc').textContent = `동반 가능 ${limit}명 중 동반 ${state.count}명 · 미동반 ${unused}명 × ${won(per)}`;
+  // 작은 화면에서 관계 칸까지 함께 보이면 계산식·안내 문구를 숨겨 한 화면에 맞춤
+  const tight = window.innerHeight < 700 && state.count > 0;
+  $('#pcash-calc').hidden = tight;
+  $('#pcash-card .cash__note').hidden = tight;
 
   let valid = !!attend;
   if (going) {

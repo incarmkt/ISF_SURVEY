@@ -143,6 +143,9 @@ function openWelcome(info) {
   else noTitle.innerHTML = '아쉽게도 이번 ISF<br>달성 대상이 아닙니다.';
   noTitle.style.whiteSpace = info.reason ? 'pre-line' : '';
   $('#welcome-no-sub').hidden = !!info.reason;
+  // 미달성자: 합산 실적에 따른 현금 시상 안내
+  $('#consol-card').hidden = !info.consolation;
+  $('#consol-amount').textContent = info.consolation || '';
   $('#welcome-ok').hidden = !info.eligible;
   $('#welcome-no').hidden = !!info.eligible;
   $('#welcome-prev').hidden = !info.previous;

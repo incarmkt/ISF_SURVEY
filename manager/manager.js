@@ -5,8 +5,12 @@ const CONFIG = {
   // Apps Script 웹 앱 주소 (FA 페이지 app.js와 같은 주소)
   API_URL: 'https://script.google.com/macros/s/AKfycbw9Ve3k9fg9Vb8z96iH87WusRqFfLaKgB_IrQufZNM1FB40OlXz3sBktkR2MkmD0rpmkw/exec',
   // 화면에 보이는 조사 기간 문구
-  PERIOD_TEXT: '10.27 ~ [마감일]'
+  PERIOD_TEXT: '10.27 ~ [마감일]',
+  // 관리자 불참 시 현금 시상: TO 1명당 금액 (서버 값이 있으면 서버 값 사용)
+  CASH_PER_TO: 1200000
 };
+const won = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
+const cashPerTo = () => (state.info && state.info.cashPerTo) || CONFIG.CASH_PER_TO;
 // ──────────────────────────────────────────────
 
 const $ = (sel) => document.querySelector(sel);
@@ -145,7 +149,12 @@ function prepareForm() {
   const info = state.info;
   if (!info || !info.eligible) return show('intro');
   countInput.max = info.to;
-  countInput.value = state.lastCount != null ? state.lastCount : 0;
+  // 이전 입력이 있으면: 1명 이상 → 참석, 0명 → 불참 으로 미리 선택
+  const last = state.lastCount;
+  $$('input[name="attend"]').forEach((r) => {
+    r.checked = last != null && r.value === (last > 0 ? '참석' : '불참');
+  });
+  countInput.value = last > 0 ? last : 1;
   const note = $('#current-note');
   if (info.current) {
     note.textContent = '';
@@ -169,13 +178,33 @@ function currentCount() {
   return Number.isInteger(n) && n >= 0 ? n : NaN;
 }
 
+function currentAttend() {
+  const r = $('input[name="attend"]:checked');
+  return r ? r.value : '';
+}
+
+// 참석 → 인원 입력칸만 / 불참 → 예상 현금 시상만 표시
 function refreshForm() {
+  const attend = currentAttend();
+  const going = attend === '참석';
+  $('#count-card').hidden = !going;
+  $('#mcash-card').hidden = attend !== '불참';
+
   const n = currentCount();
-  const over = Number.isInteger(n) && n > state.info.to;
+  const over = going && Number.isInteger(n) && n > state.info.to;
   $('#count-error').hidden = !over;
   $('#count-card').classList.toggle('is-invalid', over);
-  $('#submit-btn').disabled = !Number.isInteger(n) || over;
+
+  // 불참: 파트너 관리자 TO 전체 × 1명당 금액
+  $('#mcash-amount').textContent = won(state.info.to * cashPerTo());
+  $('#mcash-calc').textContent = `TO ${state.info.to}명 × ${won(cashPerTo())}`;
+
+  let valid = !!attend;
+  if (going) valid = Number.isInteger(n) && n >= 1 && !over;
+  $('#submit-btn').disabled = !valid;
 }
+
+$$('input[name="attend"]').forEach((r) => r.addEventListener('change', refreshForm));
 
 countInput.addEventListener('input', () => {
   countInput.value = countInput.value.replace(/[^\d]/g, '');
@@ -183,7 +212,7 @@ countInput.addEventListener('input', () => {
 });
 $$('[data-step]').forEach((b) => b.addEventListener('click', () => {
   const n = Number.isInteger(currentCount()) ? currentCount() : 0;
-  countInput.value = Math.max(0, n + Number(b.dataset.step));
+  countInput.value = Math.max(1, n + Number(b.dataset.step));
   refreshForm();
 }));
 
@@ -191,12 +220,13 @@ $('#count-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const err = $('#submit-error');
   err.hidden = true;
-  const res = await api({ action: 'msubmit', empNo: state.empNo, agree: true, count: currentCount() });
+  const res = await api({ action: 'msubmit', empNo: state.empNo, agree: true,
+    count: currentAttend() === '참석' ? currentCount() : 0 });
   if (!res.ok) { err.textContent = res.message; err.hidden = false; return; }
 
   state.lastCount = res.count;
   state.info.current = { count: res.count, by: res.name, at: res.submittedAt };
-  setText('s-count', `${res.count}명`);
+  setText('s-count', res.count > 0 ? `참석 · ${res.count}명` : '불참');
   setText('s-at', res.submittedAt);
   if (res.deadline) setText('deadline', res.deadline);
   show('done');

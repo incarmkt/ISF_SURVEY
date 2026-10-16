@@ -174,7 +174,7 @@ function currentCount() {
   return Number.isInteger(n) && n >= 0 ? n : NaN;
 }
 
-// TO보다 적게 입력하면 → 남는 TO × 1명당 금액 표시 (0명 = 전원 불참)
+// 인원 입력 확인 (0명 = 불참)
 function refreshForm() {
   const to = state.info.to;
   const n = currentCount();
@@ -185,13 +185,6 @@ function refreshForm() {
   $('#count-hint').hidden = over;
   $('#submit-btn').disabled = !ok || over;
 
-  const absent = ok && !over ? to - n : 0;
-  $('#mcash-card').hidden = absent <= 0;
-  $('#mcash-label').textContent = n === 0 ? '불참 시 예상 현금 시상' : '미참석 TO 예상 현금 시상';
-  $('#mcash-amount').textContent = won(absent * cashPerTo());
-  $('#mcash-calc').textContent = n === 0
-    ? `TO ${to}명 전원 불참 × ${won(cashPerTo())}`
-    : `TO ${to}명 중 참석 ${n}명 · 미참석 ${absent}명 × ${won(cashPerTo())}`;
 }
 
 countInput.addEventListener('input', () => {

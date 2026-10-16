@@ -1,4 +1,4 @@
-/* 2027 ISF 참석 수요조사 - 화면 동작 */
+/* 2027 ISF 참석 수요조사 - 화면 동작 (FA) */
 
 // ─────────────── 바꿀 수 있는 값 ───────────────
 const CONFIG = {
@@ -16,7 +16,8 @@ const state = {
   empNo: '',
   name: '',
   info: null,      // 조회 결과
-  last: null       // 마지막 제출 결과
+  last: null,      // 마지막 제출 내용
+  count: 0         // 예상 동반인원
 };
 
 // data-text="키" 가 붙은 곳에 글자 넣기 (항상 textContent → 입력값이 HTML로 해석되지 않음)
@@ -24,10 +25,31 @@ function setText(key, value) {
   $$(`[data-text="${key}"]`).forEach((el) => { el.textContent = value == null ? '' : String(value); });
 }
 
-function show(screen) {
+// ─────────────── 화면 전환 + 뒤로가기 ───────────────
+// 화면을 바꿀 때마다 브라우저 기록에 남겨서, 상단 [뒤로] 버튼과 휴대폰 뒤로가기가 같은 동작을 하게 함
+let current = 'intro';
+function show(screen, push = true) {
+  current = screen;
   $$('.screen').forEach((s) => s.classList.toggle('is-active', s.id === `screen-${screen}`));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  $('#back-btn').hidden = screen === 'intro';
+  $('#bar-title').hidden = screen !== 'intro';
+  if (push) history.pushState({ screen }, '');
+  window.scrollTo({ top: 0 });
 }
+history.replaceState({ screen: 'intro' }, '');
+
+window.addEventListener('popstate', (e) => {
+  if (!$('#welcome').hidden) { closeWelcome(); return; }
+  const to = (e.state && e.state.screen) || 'intro';
+  // 조회 정보 없이 입력·완료 화면으로 돌아가는 것은 막음
+  if ((to === 'form' || to === 'done') && !state.info) return show('intro', false);
+  show(to, false);
+});
+
+$('#back-btn').addEventListener('click', () => {
+  if (!$('#welcome').hidden) { closeWelcome(); return; }
+  history.back();
+});
 
 function loading(on) { $('#loading').hidden = !on; }
 
@@ -39,7 +61,7 @@ async function api(payload) {
     if (!res.ok) throw new Error(res.status);
     return await res.json();
   } catch (e) {
-    return { ok: false, message: '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' };
+    return { ok: false, message: '네트워크 오류가 발생했습니다.\n잠시 후 다시 시도해 주세요.' };
   } finally {
     loading(false);
   }
@@ -57,7 +79,7 @@ document.addEventListener('click', (e) => {
 
 function resetAll() {
   closeWelcome();
-  state.empNo = ''; state.name = ''; state.info = null; state.last = null;
+  state.empNo = ''; state.name = ''; state.info = null; state.last = null; state.count = 0;
   $('#verify-form').reset();
   $('#attend-form').reset();
   updateAgree();
@@ -73,6 +95,16 @@ function updateAgree() {
 }
 agree.addEventListener('change', updateAgree);
 
+// 동의서 내용 접기/펼치기
+$('#consent-toggle').addEventListener('click', () => {
+  const body = $('#consent-body');
+  const open = body.hidden;
+  body.hidden = !open;
+  $('#consent').classList.toggle('is-open', open);
+  $('#consent-toggle').setAttribute('aria-expanded', String(open));
+  $('#consent-toggle').textContent = open ? '접기 ▴' : '내용 보기 ▾';
+});
+
 $('#emp').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
 
 $('#verify-form').addEventListener('submit', async (e) => {
@@ -86,7 +118,7 @@ $('#verify-form').addEventListener('submit', async (e) => {
 
   const res = await api({ action: 'lookup', empNo, agree: true });
   if (!res.ok || !res.name || !res.grade) {
-    err.textContent = res.message || '일시적인 오류가 발생했습니다. 다시 시도해 주세요.';
+    err.textContent = res.message || '일시적인 오류가 발생했습니다.\n다시 시도해 주세요.';
     err.hidden = false;
     return;
   }
@@ -114,9 +146,9 @@ function openWelcome(info) {
   $('#welcome-ok').hidden = !info.eligible;
   $('#welcome-no').hidden = !!info.eligible;
   $('#welcome-prev').hidden = !info.previous;
+  $('#cash-amount').textContent = info.cash || '추후 안내 예정';
   $('#welcome').hidden = false;
-  const focusBtn = $(info.eligible ? '#welcome-ok .btn' : '#welcome-no .btn');
-  focusBtn.focus();
+  $(info.eligible ? '#welcome-ok .btn' : '#welcome-no .btn').focus();
 }
 function closeWelcome() { $('#welcome').hidden = true; }
 document.addEventListener('keydown', (e) => {
@@ -124,18 +156,15 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ─────────────── ③ 참석 정보 입력 ───────────────
-const countInput = $('#count');
-
 function prepareForm() {
   const info = state.info;
   if (!info) return show('intro');
   const prev = state.last;
-  countInput.max = info.limit;
-  countInput.disabled = info.limit === 0;
   $('#count-note').hidden = info.limit !== 0;
-
   $$('input[name="attend"]').forEach((r) => { r.checked = !!prev && r.value === prev.attend; });
-  countInput.value = prev && prev.attend === '참석' ? prev.companions : 0;
+  state.count = prev && prev.attend === '참석' ? Math.min(prev.companions, info.limit) : 0;
+  $('#count-error').hidden = true;
+  renderCount();
   renderRelations(prev && prev.attend === '참석' ? prev.relations : []);
   $('#submit-error').hidden = true;
   refreshForm();
@@ -146,22 +175,39 @@ function currentAttend() {
   return r ? r.value : '';
 }
 
-function currentCount() {
-  const v = countInput.value.trim();
-  if (v === '') return 0;
-  const n = Number(v);
-  return Number.isInteger(n) && n >= 0 ? n : NaN;
+function renderCount() {
+  const limit = state.info.limit;
+  $('#count').textContent = `${state.count}명`;
+  $('#count-minus').disabled = state.count <= 0;
+  $('#count-plus').disabled = limit === 0;
 }
 
-// 동반 인원 수만큼 관계 선택칸 생성 (기존 선택은 유지)
+// − / + 버튼: 한도를 넘기려 하면 경고만 띄우고 숫자는 한도에서 멈춤
+$('#count-minus').addEventListener('click', () => {
+  if (state.count > 0) state.count -= 1;
+  $('#count-error').hidden = true;
+  renderCount(); renderRelations(); refreshForm();
+});
+$('#count-plus').addEventListener('click', () => {
+  if (state.count >= state.info.limit) {
+    $('#count-error').hidden = false;
+    // 경고는 3초 뒤 자동으로 닫힘 (작은 화면에서 칸을 오래 차지하지 않게)
+    clearTimeout(state.warnTimer);
+    state.warnTimer = setTimeout(() => { $('#count-error').hidden = true; refreshForm(); }, 3000);
+  } else {
+    state.count += 1;
+    $('#count-error').hidden = true;
+  }
+  renderCount(); renderRelations(); refreshForm();
+});
+
+// 예상 동반인원 수만큼 관계 선택칸 생성 (기존 선택은 유지)
 function renderRelations(preset) {
   const info = state.info;
   const list = $('#rel-list');
   const keep = preset || $$('#rel-list select').map((s) => s.value);
-  const n = currentCount();
-  const count = Number.isInteger(n) ? Math.min(n, info.limit) : 0;
   list.textContent = '';
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < state.count; i++) {
     const wrap = document.createElement('div');
     wrap.className = 'field';
     const label = document.createElement('label');
@@ -182,44 +228,33 @@ function renderRelations(preset) {
     wrap.append(label, sel);
     list.appendChild(wrap);
   }
-  $('#rel-card').hidden = count === 0;
+  $('#rel-card').hidden = state.count === 0;
 }
 
-// 입력 상태에 따라 블록 표시·오류·제출 버튼 잠금
+// 참석/불참에 따라 보이는 칸과 제출 버튼 잠금 정리
 function refreshForm() {
-  const info = state.info;
   const attend = currentAttend();
   const going = attend === '참석';
   $('#companion-block').hidden = !going;
+  $('#cash-card').hidden = attend !== '불참';
+  $('#count-card').classList.toggle('is-invalid', going && !$('#count-error').hidden);
 
   let valid = !!attend;
   if (going) {
-    const n = currentCount();
-    const over = !Number.isInteger(n) || n > info.limit;
-    $('#count-error').hidden = !over || !Number.isInteger(n);
-    $('#count-card').classList.toggle('is-invalid', over);
     const rels = $$('#rel-list select').map((s) => s.value);
-    valid = !over && rels.length === n && rels.every(Boolean);
-  } else {
-    $('#count-error').hidden = true;
-    $('#count-card').classList.remove('is-invalid');
+    valid = rels.length === state.count && rels.every(Boolean);
   }
   $('#submit-btn').disabled = !valid;
 }
 
 $$('input[name="attend"]').forEach((r) => r.addEventListener('change', refreshForm));
-countInput.addEventListener('input', () => {
-  countInput.value = countInput.value.replace(/[^\d]/g, '');
-  renderRelations();
-  refreshForm();
-});
 
 $('#attend-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const err = $('#submit-error');
   err.hidden = true;
   const attend = currentAttend();
-  const companions = attend === '참석' ? currentCount() : 0;
+  const companions = attend === '참석' ? state.count : 0;
   const relations = attend === '참석' ? $$('#rel-list select').map((s) => s.value) : [];
 
   const res = await api({

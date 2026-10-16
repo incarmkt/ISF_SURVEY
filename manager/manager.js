@@ -17,10 +17,28 @@ const state = { empNo: '', info: null, lastCount: null };
 function setText(key, value) {
   $$(`[data-text="${key}"]`).forEach((el) => { el.textContent = value == null ? '' : String(value); });
 }
-function show(screen) {
+// ─────────────── 화면 전환 + 뒤로가기 ───────────────
+// 화면을 바꿀 때마다 브라우저 기록에 남겨서, 상단 [뒤로] 버튼과 휴대폰 뒤로가기가 같은 동작을 하게 함
+function show(screen, push = true) {
   $$('.screen').forEach((s) => s.classList.toggle('is-active', s.id === `screen-${screen}`));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  $('#back-btn').hidden = screen === 'intro';
+  $('#bar-title').hidden = screen !== 'intro';
+  if (push) history.pushState({ screen }, '');
+  window.scrollTo({ top: 0 });
 }
+history.replaceState({ screen: 'intro' }, '');
+
+window.addEventListener('popstate', (e) => {
+  if (!$('#welcome').hidden) { closeWelcome(); return; }
+  const to = (e.state && e.state.screen) || 'intro';
+  if ((to === 'form' || to === 'done') && !state.info) return show('intro', false);
+  show(to, false);
+});
+
+$('#back-btn').addEventListener('click', () => {
+  if (!$('#welcome').hidden) { closeWelcome(); return; }
+  history.back();
+});
 function loading(on) { $('#loading').hidden = !on; }
 
 async function api(payload) {
@@ -30,7 +48,7 @@ async function api(payload) {
     if (!res.ok) throw new Error(res.status);
     return await res.json();
   } catch (e) {
-    return { ok: false, message: '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' };
+    return { ok: false, message: '네트워크 오류가 발생했습니다.\n잠시 후 다시 시도해 주세요.' };
   } finally {
     loading(false);
   }
@@ -62,6 +80,16 @@ function updateAgree() {
   $('#agree-hint').hidden = agree.checked;
 }
 agree.addEventListener('change', updateAgree);
+
+// 동의서 내용 접기/펼치기
+$('#consent-toggle').addEventListener('click', () => {
+  const body = $('#consent-body');
+  const open = body.hidden;
+  body.hidden = !open;
+  $('#consent').classList.toggle('is-open', open);
+  $('#consent-toggle').setAttribute('aria-expanded', String(open));
+  $('#consent-toggle').textContent = open ? '접기 ▴' : '내용 보기 ▾';
+});
 $('#emp').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
 
 $('#verify-form').addEventListener('submit', async (e) => {
@@ -74,7 +102,7 @@ $('#verify-form').addEventListener('submit', async (e) => {
 
   const res = await api({ action: 'mlookup', empNo, agree: true });
   if (!res.ok || !res.name || !res.partner) {
-    err.textContent = res.message || '일시적인 오류가 발생했습니다. 다시 시도해 주세요.';
+    err.textContent = res.message || '일시적인 오류가 발생했습니다.\n다시 시도해 주세요.';
     err.hidden = false;
     return;
   }
@@ -95,7 +123,9 @@ function openWelcome(info) {
   $('#welcome-reason').textContent = info.reason || '';
   const prev = $('#welcome-prev');
   if (info.current) {
-    prev.textContent = `현재 ${info.current.count}명으로 입력되어 있습니다. (${info.current.by}님, ${info.current.at})`;
+    // 두 줄: ① 현재 인원  ② 입력자 · 시각
+    $('#welcome-prev-count').textContent = `현재 ${info.current.count}명으로 입력되어 있습니다.`;
+    $('#welcome-prev-by').textContent = `${info.current.by}님 입력 · ${info.current.at}`;
     prev.hidden = false;
   } else {
     prev.hidden = true;
@@ -118,7 +148,12 @@ function prepareForm() {
   countInput.value = state.lastCount != null ? state.lastCount : 0;
   const note = $('#current-note');
   if (info.current) {
-    note.textContent = `현재 입력값: ${info.current.count}명 (${info.current.by}님 입력). 다시 제출하면 이 값이 바뀝니다.`;
+    note.textContent = '';
+    const a = document.createElement('strong');
+    a.textContent = `현재 입력값 ${info.current.count}명 (${info.current.by}님 입력)`;
+    const b = document.createElement('span');
+    b.textContent = '다시 제출하면 이 값으로 바뀝니다.';
+    note.append(a, b);
     note.hidden = false;
   } else {
     note.hidden = true;

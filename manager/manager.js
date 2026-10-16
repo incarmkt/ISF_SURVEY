@@ -149,12 +149,8 @@ function prepareForm() {
   const info = state.info;
   if (!info || !info.eligible) return show('intro');
   countInput.max = info.to;
-  // 이전 입력이 있으면: 1명 이상 → 참석, 0명 → 불참 으로 미리 선택
-  const last = state.lastCount;
-  $$('input[name="attend"]').forEach((r) => {
-    r.checked = last != null && r.value === (last > 0 ? '참석' : '불참');
-  });
-  countInput.value = last > 0 ? last : 1;
+  // 이전 입력이 있으면 그 값, 없으면 빈칸(직접 입력해야 제출 가능)
+  countInput.value = state.lastCount != null ? state.lastCount : '';
   const note = $('#current-note');
   if (info.current) {
     note.textContent = '';
@@ -178,41 +174,44 @@ function currentCount() {
   return Number.isInteger(n) && n >= 0 ? n : NaN;
 }
 
-function currentAttend() {
-  const r = $('input[name="attend"]:checked');
-  return r ? r.value : '';
-}
-
-// 참석 → 인원 입력칸만 / 불참 → 예상 현금 시상만 표시
+// TO보다 적게 입력하면 → 남는 TO × 1명당 금액 표시 (0명 = 전원 불참)
 function refreshForm() {
-  const attend = currentAttend();
-  const going = attend === '참석';
-  $('#count-card').hidden = !going;
-  $('#mcash-card').hidden = attend !== '불참';
-
+  const to = state.info.to;
   const n = currentCount();
-  const over = going && Number.isInteger(n) && n > state.info.to;
+  const ok = Number.isInteger(n);
+  const over = ok && n > to;
   $('#count-error').hidden = !over;
   $('#count-card').classList.toggle('is-invalid', over);
+  $('#count-hint').hidden = over;
+  $('#submit-btn').disabled = !ok || over;
 
-  // 불참: 파트너 관리자 TO 전체 × 1명당 금액
-  $('#mcash-amount').textContent = won(state.info.to * cashPerTo());
-  $('#mcash-calc').textContent = `TO ${state.info.to}명 × ${won(cashPerTo())}`;
-
-  let valid = !!attend;
-  if (going) valid = Number.isInteger(n) && n >= 1 && !over;
-  $('#submit-btn').disabled = !valid;
+  const absent = ok && !over ? to - n : 0;
+  $('#mcash-card').hidden = absent <= 0;
+  $('#mcash-label').textContent = n === 0 ? '불참 시 예상 현금 시상' : '미참석 TO 예상 현금 시상';
+  $('#mcash-amount').textContent = won(absent * cashPerTo());
+  $('#mcash-calc').textContent = n === 0
+    ? `TO ${to}명 전원 불참 × ${won(cashPerTo())}`
+    : `TO ${to}명 중 참석 ${n}명 · 미참석 ${absent}명 × ${won(cashPerTo())}`;
 }
-
-$$('input[name="attend"]').forEach((r) => r.addEventListener('change', refreshForm));
 
 countInput.addEventListener('input', () => {
   countInput.value = countInput.value.replace(/[^\d]/g, '');
   refreshForm();
 });
 $$('[data-step]').forEach((b) => b.addEventListener('click', () => {
-  const n = Number.isInteger(currentCount()) ? currentCount() : 0;
-  countInput.value = Math.max(1, n + Number(b.dataset.step));
+  const cur = currentCount();
+  // 빈칸에서 + 는 1명, − 는 0명부터 시작
+  const n = Number.isInteger(cur) ? cur + Number(b.dataset.step) : (Number(b.dataset.step) > 0 ? 1 : 0);
+  if (n > state.info.to) {
+    // TO에서 더 누르면 숫자는 그대로 두고 경고만 3초 표시
+    countInput.value = state.info.to;
+    refreshForm();
+    $('#count-error').hidden = false; $('#count-hint').hidden = true;
+    clearTimeout(state.warnTimer);
+    state.warnTimer = setTimeout(refreshForm, 3000);
+    return;
+  }
+  countInput.value = Math.max(0, n);
   refreshForm();
 }));
 
@@ -221,12 +220,12 @@ $('#count-form').addEventListener('submit', async (e) => {
   const err = $('#submit-error');
   err.hidden = true;
   const res = await api({ action: 'msubmit', empNo: state.empNo, agree: true,
-    count: currentAttend() === '참석' ? currentCount() : 0 });
+    count: currentCount() });
   if (!res.ok) { err.textContent = res.message; err.hidden = false; return; }
 
   state.lastCount = res.count;
   state.info.current = { count: res.count, by: res.name, at: res.submittedAt };
-  setText('s-count', res.count > 0 ? `참석 · ${res.count}명` : '불참');
+  setText('s-count', res.count > 0 ? `${res.count}명` : '0명 (불참)');
   setText('s-at', res.submittedAt);
   if (res.deadline) setText('deadline', res.deadline);
   show('done');

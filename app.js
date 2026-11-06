@@ -5,7 +5,9 @@ const CONFIG = {
   // Apps Script 웹 앱 주소 (배포 → 배포 관리에서 확인)
   API_URL: 'https://script.google.com/macros/s/AKfycbw9Ve3k9fg9Vb8z96iH87WusRqFfLaKgB_IrQufZNM1FB40OlXz3sBktkR2MkmD0rpmkw/exec',
   // 화면에 보이는 조사 기간 문구
-  PERIOD_TEXT: '미정'
+  PERIOD_TEXT: '미정',
+  // 동반인 관계 중 한 명만 선택할 수 있는 항목 (자녀·형제·자매는 여러 명 가능)
+  UNIQUE_RELATIONS: ['배우자', '부', '모']
 };
 // ──────────────────────────────────────────────
 
@@ -226,11 +228,32 @@ function renderRelations(preset) {
       sel.appendChild(o);
     });
     if (keep[i] && info.relations.includes(keep[i])) sel.value = keep[i];
-    sel.addEventListener('change', refreshForm);
+    sel.addEventListener('change', () => { lockUniqueRelations(); refreshForm(); });
     wrap.append(label, sel);
     list.appendChild(wrap);
   }
+  lockUniqueRelations();
   $('#rel-card').hidden = state.count === 0;
+}
+
+// 배우자·부·모는 다른 칸에서 이미 고르면 선택 못 하게 잠금
+function lockUniqueRelations() {
+  const sels = $$('#rel-list select');
+  // 미리 채워진 값이 겹치면(이전 응답 등) 뒤쪽 칸은 비움
+  const seen = [];
+  sels.forEach((s) => {
+    if (CONFIG.UNIQUE_RELATIONS.includes(s.value)) {
+      if (seen.includes(s.value)) s.value = ''; else seen.push(s.value);
+    }
+  });
+  sels.forEach((s) => {
+    Array.from(s.options).forEach((o) => {
+      if (!CONFIG.UNIQUE_RELATIONS.includes(o.value)) return;
+      const takenElsewhere = sels.some((x) => x !== s && x.value === o.value);
+      o.disabled = takenElsewhere;
+      o.textContent = takenElsewhere ? `${o.value} (선택됨)` : o.value;
+    });
+  });
 }
 
 // 참석/불참에 따라 보이는 칸과 제출 버튼 잠금 정리

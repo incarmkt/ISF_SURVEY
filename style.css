@@ -239,6 +239,8 @@ input[type="text"], input[type="number"], select {
   .bottom { margin-top: 6px; }
 
   .intro { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 32px; align-items: center; }
+  /* PC: 포스터가 창 높이를 넘지 않게 (스크롤 없이 한 화면) */
+  .intro__poster { width: auto; max-width: 100%; max-height: calc(100vh - var(--bar-h) - 96px); max-height: calc(100dvh - var(--bar-h) - 96px); margin: 0 auto; }
   .intro__side { gap: 14px; }
 
   .verify { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px 32px; padding: 28px; }

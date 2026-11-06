@@ -16,6 +16,7 @@ const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
 const state = {
   empNo: '',
+  birth: '',     // 생년월일 6자리 (조회·제출 때 함께 보냄)
   name: '',
   info: null,      // 조회 결과
   last: null,      // 마지막 제출 내용
@@ -81,7 +82,7 @@ document.addEventListener('click', (e) => {
 
 function resetAll() {
   closeWelcome();
-  state.empNo = ''; state.name = ''; state.info = null; state.last = null; state.count = 0;
+  state.empNo = ''; state.birth = ''; state.name = ''; state.info = null; state.last = null; state.count = 0;
   $('#verify-form').reset();
   $('#attend-form').reset();
   updateAgree();
@@ -108,6 +109,11 @@ $('#consent-toggle').addEventListener('click', () => {
 });
 
 $('#emp').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
+// 생년월일: 숫자만 6자리. 1990-01-15 / 19900115처럼 8자리로 붙여넣으면 앞 두 자리를 빼서 900115로 맞춤
+$('#birth').addEventListener('input', (e) => {
+  const d = e.target.value.replace(/\D/g, '');
+  e.target.value = d.length >= 8 ? d.slice(2, 8) : d.slice(0, 6);
+});
 
 $('#verify-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -117,8 +123,10 @@ $('#verify-form').addEventListener('submit', async (e) => {
 
   const empNo = $('#emp').value.trim();
   if (!empNo) { err.textContent = '사원번호를 입력해 주세요.'; err.hidden = false; return; }
+  const birth = $('#birth').value.trim();
+  if (!/^\d{6}$/.test(birth)) { err.textContent = '생년월일 6자리를 입력해 주세요.\n예) 900115'; err.hidden = false; return; }
 
-  const res = await api({ action: 'lookup', empNo, agree: true });
+  const res = await api({ action: 'lookup', empNo, birth, agree: true });
   if (!res.ok || !res.name || !res.grade) {
     err.textContent = res.message || '일시적인 오류가 발생했습니다.\n다시 시도해 주세요.';
     err.hidden = false;
@@ -126,6 +134,7 @@ $('#verify-form').addEventListener('submit', async (e) => {
   }
 
   state.empNo = empNo;
+  state.birth = birth;
   state.name = res.name;
   state.info = res;
   state.last = res.previous || null;
@@ -284,7 +293,7 @@ $('#attend-form').addEventListener('submit', async (e) => {
   const relations = attend === '참석' ? $$('#rel-list select').map((s) => s.value) : [];
 
   const res = await api({
-    action: 'submit', empNo: state.empNo, agree: true,
+    action: 'submit', empNo: state.empNo, birth: state.birth, agree: true,
     attend, companions, relations
   });
   if (!res.ok) { err.textContent = res.message; err.hidden = false; return; }

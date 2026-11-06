@@ -12,7 +12,7 @@ const CONFIG = {
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-const state = { empNo: '', info: null, lastCount: null };
+const state = { empNo: '', birth: '', info: null, lastCount: null };
 
 function setText(key, value) {
   $$(`[data-text="${key}"]`).forEach((el) => { el.textContent = value == null ? '' : String(value); });
@@ -66,7 +66,7 @@ document.addEventListener('click', (e) => {
 
 function resetAll() {
   closeWelcome();
-  state.empNo = ''; state.info = null; state.lastCount = null;
+  state.empNo = ''; state.birth = ''; state.info = null; state.lastCount = null;
   $('#verify-form').reset();
   updateAgree();
   $('#verify-error').hidden = true;
@@ -91,6 +91,11 @@ $('#consent-toggle').addEventListener('click', () => {
   $('#consent-toggle').textContent = open ? '접기 ▴' : '내용 보기 ▾';
 });
 $('#emp').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
+// 생년월일: 숫자만 6자리. 1990-01-15 / 19900115처럼 8자리로 붙여넣으면 앞 두 자리를 빼서 900115로 맞춤
+$('#birth').addEventListener('input', (e) => {
+  const d = e.target.value.replace(/\D/g, '');
+  e.target.value = d.length >= 8 ? d.slice(2, 8) : d.slice(0, 6);
+});
 
 $('#verify-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -99,14 +104,17 @@ $('#verify-form').addEventListener('submit', async (e) => {
   if (!agree.checked) return updateAgree();
   const empNo = $('#emp').value.trim();
   if (!empNo) { err.textContent = '사원번호를 입력해 주세요.'; err.hidden = false; return; }
+  const birth = $('#birth').value.trim();
+  if (!/^\d{6}$/.test(birth)) { err.textContent = '생년월일 6자리를 입력해 주세요.\n예) 900115'; err.hidden = false; return; }
 
-  const res = await api({ action: 'mlookup', empNo, agree: true });
+  const res = await api({ action: 'mlookup', empNo, birth, agree: true });
   if (!res.ok || !res.name || !res.partner) {
     err.textContent = res.message || '일시적인 오류가 발생했습니다.\n다시 시도해 주세요.';
     err.hidden = false;
     return;
   }
   state.empNo = empNo;
+  state.birth = birth;
   state.info = res;
   state.lastCount = res.current ? res.current.count : null;
   openWelcome(res);
@@ -208,7 +216,7 @@ $('#count-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const err = $('#submit-error');
   err.hidden = true;
-  const res = await api({ action: 'msubmit', empNo: state.empNo, agree: true,
+  const res = await api({ action: 'msubmit', empNo: state.empNo, birth: state.birth, agree: true,
     count: currentCount() });
   if (!res.ok) { err.textContent = res.message; err.hidden = false; return; }
 

@@ -70,6 +70,10 @@
             <label for="emp"><b>01.</b> 사원번호</label>
             <input id="emp" name="emp" type="text" inputmode="numeric" autocomplete="off" placeholder="숫자만 입력" maxlength="12" required>
           </div>
+          <div class="field">
+            <label for="birth"><b>02.</b> 생년월일 <span class="small" style="font-weight:500">(6자리)</span></label>
+            <input id="birth" name="birth" type="text" inputmode="numeric" autocomplete="off" placeholder="예) 900115" maxlength="10" required>
+          </div>
         </div>
 
         <section id="consent" class="consent" aria-labelledby="consent-title">
@@ -78,7 +82,7 @@
             <button id="consent-toggle" type="button" class="link-btn" aria-expanded="false" aria-controls="consent-body">내용 보기 ▾</button>
           </div>
           <div id="consent-body" class="consent__body" hidden>
-            <div><strong>수집·이용 항목</strong><span>사원번호, 참석 여부, 예상 동반인원, 동반인과의 관계</span></div>
+            <div><strong>수집·이용 항목</strong><span>사원번호, 생년월일, 참석 여부, 예상 동반인원, 동반인과의 관계</span></div>
             <div><strong>수집·이용 목적</strong><span>2026 ISF 참석 수요 파악 및 항공·숙박 예약 관리, 행사 관련 안내</span></div>
             <div><strong>보유·이용 기간</strong><span>수요조사 마감일로부터 <strong>1개월 이내 파기</strong>합니다. 다만 관계 법령 또는 회사 내부 규정에 따라 별도 보존이 필요한 경우 해당 기간 동안 보관할 수 있습니다.</span></div>
             <div><strong>동의 거부 안내</strong><span>개인정보 수집·이용에 동의하지 않을 권리가 있습니다. 다만 동의하지 않을 경우 수요조사 참여가 제한됩니다.</span></div>
@@ -228,6 +232,6 @@
 
   <div id="loading" class="loading" hidden><div class="spinner" role="status" aria-label="처리 중"></div></div>
 
-  <script src="app.js?v=20261106d"></script>
+  <script src="app.js?v=20261106f"></script>
 </body>
 </html>

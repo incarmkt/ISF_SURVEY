@@ -250,3 +250,24 @@ input[type="text"], input[type="number"], select {
 }
 
 @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2s; } }
+
+/* 영업관리자 사이트 전용: 부드러운 주황 테마 */
+.theme-mgr {
+  --bg: #FFF6EF;
+  --line: #F5DFD0;
+  --input-line: #EDCDB7;
+  --input-bg: #FFFCFA;
+  --ink: #3A271D;
+  --muted: #7C6558;
+  --blue: #E06A2B;
+  --blue-soft: #FDEBDD;
+  --navy: #CF5E24;
+  --navy-dark: #B54E1B;
+  --disabled: #EBDCD2;
+}
+.theme-mgr .steps li + li::before { color: #D9B9A5; }
+.theme-mgr .consent__head, .theme-mgr .cash__note { background: #FFF4EC; }
+.theme-mgr .btn:focus-visible, .theme-mgr input:focus-visible, .theme-mgr select:focus-visible, .theme-mgr .back-btn:focus-visible, .theme-mgr .stepper__btn:focus-visible, .theme-mgr .link-btn:focus-visible { outline-color: rgba(224, 106, 43, .35); }
+.theme-mgr .modal { background: rgba(58, 39, 29, .5); }
+.theme-mgr .loading { background: rgba(255, 246, 239, .7); }
+.theme-mgr .ship svg { stroke: var(--blue); }

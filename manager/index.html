@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://script.google.com">
   <link rel="preconnect" href="https://script.googleusercontent.com">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="stylesheet" href="../style.css?v=20261109a">
+  <link rel="stylesheet" href="../style.css?v=20261109b">
 </head>
 <body class="theme-mgr">
   <header class="topbar">
@@ -83,6 +83,8 @@
             <h2 id="consent-title">개인정보 수집·이용 동의</h2>
             <button id="consent-toggle" type="button" class="link-btn" aria-haspopup="dialog" aria-controls="consent-sheet">전문 보기 ›</button>
           </div>
+          <!-- 동의서 내용 (항상 보임 · 전문 보기 창과 같은 내용을 자동 복사) -->
+          <div id="consent-inline" class="consent__body"></div>
           <label class="consent__check">
             <input id="agree" type="checkbox">
             <span>위 개인정보 수집·이용 내용을 확인했으며<br>이에 동의합니다. <em>(필수)</em></span>
@@ -224,6 +226,6 @@
 
   <div id="loading" class="loading" hidden><div class="spinner" role="status" aria-label="처리 중"></div></div>
 
-  <script src="manager.js?v=20261109a"></script>
+  <script src="manager.js?v=20261109b"></script>
 </body>
 </html>

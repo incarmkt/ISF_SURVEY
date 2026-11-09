@@ -188,11 +188,15 @@ input[type="text"], input[type="number"], select {
 
 /* ───── 모바일: 한 화면에 맞추기 ───── */
 @media (max-width: 899px) {
-  /* 화면 높이에 고정 → 내용이 넘칠 때도 페이지 전체가 아니라 해당 칸 안에서만 스크롤 */
-  body { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
-  .topbar { flex: none; }
-  .wrap { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .screen.is-active { flex: 1; min-height: 0; }
+  /* 기본: 페이지가 자연스럽게 위아래로 스크롤 (짧으면 버튼은 화면 아래에 붙음) */
+  body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+  .topbar { flex: none; position: sticky; top: 0; z-index: 5; }
+  .wrap { flex: 1; width: 100%; display: flex; flex-direction: column; }
+  .screen.is-active { flex: 1; }
+  /* 첫 안내 화면만 한 화면 고정 (포스터를 화면 높이에 맞춤) */
+  body:has(#screen-intro.is-active) { height: 100vh; height: 100dvh; overflow: hidden; }
+  .wrap:has(#screen-intro.is-active) { min-height: 0; overflow-y: auto; }
+  #screen-intro.is-active { min-height: 0; }
   .screen > .bottom, .screen form > .bottom { margin-top: auto; }
   /* 안내 시작: 포스터가 남는 공간만큼만 차지 */
   .intro, .intro__side { flex: 1; min-height: 0; }
@@ -207,7 +211,7 @@ input[type="text"], input[type="number"], select {
   .intro .bottom { margin-top: 0; }
   /* 입력 화면: 단계 표시는 첫 화면(본인 확인)에만 */
   #screen-form .steps { display: none; }
-  #attend-form, #count-form, #verify-form { flex: 1; min-height: 0; }
+  #attend-form, #count-form, #verify-form { flex: 1; }
 }
 
 /* 세로가 짧은 폰 (예: 360×640, 아이폰 SE) */
@@ -288,3 +292,12 @@ input[type="text"], input[type="number"], select {
 .sheet__body > div { display: flex; flex-direction: column; gap: 3px; }
 .sheet__body > div > strong { font-size: 14.5px; color: var(--ink); }
 .sheet__foot { padding: 12px 20px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+
+/* 동의서 내용: 박스 안에 항상 보이게 (작은 글씨) */
+#consent-inline { padding: 12px 14px; gap: 8px; font-size: 12px; line-height: 1.55; overflow: visible; }
+#consent-inline > div > strong { font-size: 12.5px; }
+#consent-inline strong strong { font-size: inherit; }
+/* 입력칸 강조 테두리는 칸에 붙여서 (옆 요소와 겹치지 않게) */
+input:focus-visible, select:focus-visible { outline-offset: 0; }
+/* 생년월일 칸과 동의서 박스 사이 여유 (강조 테두리가 닿지 않게) */
+#verify-form { gap: 18px; }

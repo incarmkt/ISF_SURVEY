@@ -87,6 +87,7 @@ agree.addEventListener('change', updateAgree);
 function openConsent() { $('#consent-sheet').hidden = false; $('#consent-agree').focus(); }
 function closeConsent() { $('#consent-sheet').hidden = true; $('#consent-toggle').focus(); }
 $('#consent-toggle').addEventListener('click', openConsent);
+$('#consent-inline').innerHTML = $('#consent-body').innerHTML; // 화면에 바로 보이는 동의서 내용
 $('#consent-close').addEventListener('click', closeConsent);
 $('#consent-sheet').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeConsent(); }); // 바깥 어두운 곳 누르면 닫기
 $('#consent-agree').addEventListener('click', () => { agree.checked = true; updateAgree(); closeConsent(); });

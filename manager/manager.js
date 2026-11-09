@@ -29,6 +29,7 @@ function show(screen, push = true) {
 history.replaceState({ screen: 'intro' }, '');
 
 window.addEventListener('popstate', (e) => {
+  if (!$('#consent-sheet').hidden) { closeConsent(); return; }
   if (!$('#welcome').hidden) { closeWelcome(); return; }
   const to = (e.state && e.state.screen) || 'intro';
   if ((to === 'form' || to === 'done') && !state.info) return show('intro', false);
@@ -36,6 +37,7 @@ window.addEventListener('popstate', (e) => {
 });
 
 $('#back-btn').addEventListener('click', () => {
+  if (!$('#consent-sheet').hidden) { closeConsent(); return; }
   if (!$('#welcome').hidden) { closeWelcome(); return; }
   history.back();
 });
@@ -81,15 +83,13 @@ function updateAgree() {
 }
 agree.addEventListener('change', updateAgree);
 
-// 동의서 내용 접기/펼치기
-$('#consent-toggle').addEventListener('click', () => {
-  const body = $('#consent-body');
-  const open = body.hidden;
-  body.hidden = !open;
-  $('#consent').classList.toggle('is-open', open);
-  $('#consent-toggle').setAttribute('aria-expanded', String(open));
-  $('#consent-toggle').textContent = open ? '접기 ▴' : '내용 보기 ▾';
-});
+// 동의서 전문: 아래에서 올라오는 창으로 보기
+function openConsent() { $('#consent-sheet').hidden = false; $('#consent-agree').focus(); }
+function closeConsent() { $('#consent-sheet').hidden = true; $('#consent-toggle').focus(); }
+$('#consent-toggle').addEventListener('click', openConsent);
+$('#consent-close').addEventListener('click', closeConsent);
+$('#consent-sheet').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeConsent(); }); // 바깥 어두운 곳 누르면 닫기
+$('#consent-agree').addEventListener('click', () => { agree.checked = true; updateAgree(); closeConsent(); });
 $('#emp').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
 // 생년월일: 숫자만 6자리. 1990-01-15 / 19900115처럼 8자리로 붙여넣으면 앞 두 자리를 빼서 900115로 맞춤
 $('#birth').addEventListener('input', (e) => {
@@ -143,6 +143,7 @@ function openWelcome(info) {
 }
 function closeWelcome() { $('#welcome').hidden = true; }
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('#consent-sheet').hidden) { closeConsent(); return; }
   if (e.key === 'Escape' && !$('#welcome').hidden) closeWelcome();
 });
 

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://script.google.com">
   <link rel="preconnect" href="https://script.googleusercontent.com">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="stylesheet" href="style.css?v=20261109b">
+  <link rel="stylesheet" href="style.css?v=20261110b">
 </head>
 <body>
   <header class="topbar">
@@ -245,8 +245,29 @@
     </div>
   </div>
 
+  <!-- 중요 안내 (링크를 열 때마다 표시 · 확인 체크 후 닫힘) -->
+  <div id="notice" class="notice-pop" role="dialog" aria-modal="true" aria-labelledby="notice-title">
+    <div class="notice-pop__box">
+      <div class="nt nt--v3">
+        <span class="nt__tag">중요 안내</span>
+        <h2 id="notice-title"><small>ISF 프로모션 행사 참가자</small><em>13회차 보험료 미입금 시<br>27년 12월 환수 안내</em></h2>
+        <div class="nt__alert"><i aria-hidden="true">!</i><span>13회차 보험료 미입금이 확정되면<br><b>27년 12월 환수 처리됩니다.</b></span></div>
+        <dl>
+          <div><dt>적용계약</dt><dd>2026 ISF 해당 계약</dd></div>
+          <div><dt>마감기준</dt><dd>27년 10월 수금마감 기준</dd></div>
+          <div><dt>평가기준</dt><dd><span class="ph">27년 11월 평가</span> <span class="ph">(전월 13회차 보험료 입금여부)</span></dd></div>
+          <div><dt>환수반영</dt><dd class="nt__em"><b>27년 12월 환수 진행</b></dd></div>
+        </dl>
+      </div>
+      <div class="notice-pop__foot">
+        <label class="notice-pop__check"><input id="notice-check" type="checkbox"> 위 환수 안내를 확인했습니다. (필수)</label>
+        <button id="notice-ok" type="button" class="btn btn--danger" disabled>확인하고 수요조사 시작</button>
+      </div>
+    </div>
+  </div>
+
   <div id="loading" class="loading" hidden><div class="spinner" role="status" aria-label="처리 중"></div></div>
 
-  <script src="app.js?v=20261109b"></script>
+  <script src="app.js?v=20261110a"></script>
 </body>
 </html>

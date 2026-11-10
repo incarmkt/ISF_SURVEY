@@ -233,3 +233,7 @@ $('#count-form').addEventListener('submit', async (e) => {
 // ─────────────── 시작 ───────────────
 setText('period', CONFIG.PERIOD_TEXT);
 updateAgree();
+
+// ─────────────── 중요 안내 팝업 (링크 열 때마다) ───────────────
+$('#notice-check').addEventListener('change', (e) => { $('#notice-ok').disabled = !e.target.checked; });
+$('#notice-ok').addEventListener('click', () => { $('#notice').hidden = true; });

@@ -1,1 +1,304 @@
 
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>ISF 수요조사 현황 | 마케팅부</title>
+  <link rel="preconnect" href="https://script.google.com">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>
+    :root {
+      --bg: #F1F6FC; --card: #fff; --line: #D9E6F5; --ink: #15244A; --muted: #5E6B80;
+      --blue: #1D6FD8; --blue-soft: #E8F1FC; --navy: #2C4C8C;
+      --go: #1D6FD8;      /* 참석 */
+      --no: #A9B6C9;      /* 불참 */
+      --wait: #F0A23B;    /* 미응답 (주목) */
+      --wait-soft: #FFF4E3;
+      --ok: #1E9E63;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
+    .bar { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid var(--line); }
+    .bar__in { max-width: 1200px; margin: 0 auto; padding: 0 16px; height: 56px; display: flex; align-items: center; gap: 12px; }
+    .bar img { height: 26px; }
+    .bar h1 { font-size: 16px; margin: 0; font-weight: 800; }
+    .bar .tag { font-size: 11.5px; font-weight: 800; color: #fff; background: var(--navy); padding: 3px 8px; border-radius: 999px; }
+    .bar .sp { flex: 1; }
+    .upd { font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    .btn { border: 1px solid var(--line); background: #fff; color: var(--ink); height: 34px; padding: 0 12px; border-radius: 10px; font: inherit; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .btn--pri { background: var(--navy); color: #fff; border-color: var(--navy); }
+    main { max-width: 1200px; margin: 0 auto; padding: 16px; display: grid; gap: 14px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-width: 0; }
+    .card h2 { margin: 0 0 12px; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .card h2 small { font-weight: 500; color: var(--muted); font-size: 12px; }
+    .card h2 .sp { flex: 1; }
+
+    /* KPI */
+    .kpis { display: grid; grid-template-columns: 1.35fr 1.35fr repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .kpi { padding: 14px 16px; }
+    .kpi span { color: var(--muted); font-size: 12.5px; font-weight: 600; }
+    .kpi strong { display: block; font-size: 26px; font-weight: 800; margin: 4px 0 2px; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+    .kpi em { font-style: normal; font-size: 12px; color: var(--muted); }
+    .kpi--main { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .kpi--main span, .kpi--main em { color: #C9D6EE; }
+    .kpi--mgr { background: #3E5F9E; border-color: #3E5F9E; }
+    .kpi--wait strong { color: #C77A10; }
+    .prog { height: 8px; background: rgba(255,255,255,.2); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+    .prog i { display: block; height: 100%; background: #fff; border-radius: 99px; }
+    .prog--light { background: #EEF2F8; } .prog--light i { background: var(--ok); }
+
+    .legend { display: flex; gap: 12px; font-size: 12px; color: var(--muted); font-weight: 600; }
+    .legend b { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+
+    .grid2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .grid2--eq { grid-template-columns: 1fr 1fr; }
+
+    /* 부문별 막대 */
+    .rows { display: flex; flex-direction: column; gap: 12px; }
+    .row { display: grid; grid-template-columns: 92px 1fr 64px; align-items: center; gap: 10px; }
+    .row__name { font-weight: 700; font-size: 13px; }
+    .row__name small { display: block; font-weight: 500; color: var(--muted); font-size: 11.5px; }
+    .stack { display: flex; height: 22px; border-radius: 6px; overflow: hidden; background: #EEF2F8; gap: 2px; }
+    .stack i { display: block; height: 100%; }
+    .stack .go { background: var(--go); } .stack .no { background: var(--no); } .stack .wait { background: var(--wait); }
+    .row__pct { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .row__pct small { display: block; font-weight: 500; color: var(--muted); font-size: 11px; }
+
+    /* 구간별 */
+    .mini { display: grid; grid-template-columns: 96px 1fr 44px; gap: 8px; align-items: center; font-size: 12.5px; margin-bottom: 9px; }
+    .mini .track { height: 10px; background: #EEF2F8; border-radius: 99px; overflow: hidden; }
+    .mini .track i { display: block; height: 100%; background: var(--go); border-radius: 99px; }
+    .mini b { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* 표 */
+    .tools { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tools select, .tools input { height: 34px; border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; font: inherit; font-size: 13px; background: #fff; color: var(--ink); }
+    .tools input { flex: 1; min-width: 140px; }
+    .tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #EEF2F8; white-space: nowrap; }
+    th { background: #F6F9FD; color: var(--muted); font-weight: 700; font-size: 12px; position: sticky; top: 0; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:last-child td { border-bottom: 0; }
+    .chip { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+    .chip--wait { background: var(--wait-soft); color: #B86E08; }
+    .chip--zero { background: #EEF2F8; color: var(--muted); }
+    td.ctr, th.ctr { text-align: center; font-variant-numeric: tabular-nums; }
+    td.ctr .chip { min-width: 36px; text-align: center; font-variant-numeric: tabular-nums; }
+    .pbar b { width: 38px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+    .chip--g { background: var(--blue-soft); color: var(--blue); }
+    .pbar { display: inline-flex; align-items: center; gap: 6px; }
+    .pbar span { width: 70px; height: 6px; background: #EEF2F8; border-radius: 99px; overflow: hidden; display: inline-block; }
+    .pbar span i { display: block; height: 100%; background: var(--ok); }
+    .pbar.low span i { background: var(--wait); }
+    .more { text-align: center; color: var(--muted); font-size: 12px; padding: 10px 0 0; }
+
+    /* 추이 */
+    .trend svg { width: 100%; height: 150px; display: block; }
+    .feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+    .feed li { display: grid; grid-template-columns: 44px 1fr; gap: 8px; }
+    .feed time { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .feed b { font-weight: 700; }
+
+    @media (max-width: 899px) {
+      .bar h1 { font-size: 15px; white-space: nowrap; } .bar .tag { white-space: nowrap; font-size: 10.5px; } .bar img { height: 22px; } .bar__in { gap: 8px; } .upd span { display: none; } .upd .btn { padding: 0 9px; }
+      main { padding: 12px; gap: 12px; }
+      .kpis { grid-template-columns: 1fr 1fr; }
+      .kpi--main { grid-column: 1 / -1; }
+      .only-pc { display: none; }
+      .kpi strong { font-size: 22px; }
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 74px 1fr 52px; gap: 8px; }
+      .legend { flex-wrap: wrap; }
+      .hide-m { display: none; }
+      td .only-m { display: block; }
+      .pbar span { width: 34px; } th, td { padding: 9px 7px; }
+    }
+    .only-m { display: none; font-size: 11.5px; color: var(--muted); font-weight: 500; }
+    th.grp { text-align: center; border-left: 1px solid #E3EAF4; }
+    td.bl, th.bl { border-left: 1px solid #E3EAF4; }
+  
+    /* 로그인 */
+    #view-login { min-height: calc(100dvh - 57px); display: flex; align-items: center; justify-content: center; padding: 24px 16px 64px; }
+    .login { width: 100%; max-width: 380px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 28px 24px 24px; box-shadow: 0 10px 30px rgba(21,36,74,.06); }
+    .lock { width: 52px; height: 52px; border-radius: 50%; background: #E8EEF8; display: grid; place-items: center; margin: 0 auto 14px; color: var(--navy); }
+    .login .tag { display: block; width: max-content; margin: 0 auto 8px; font-size: 11.5px; font-weight: 800; color: #fff; background: var(--navy); padding: 3px 10px; border-radius: 999px; }
+    .login h1 { text-align: center; font-size: 21px; margin: 0 0 6px; font-weight: 800; }
+    .login .sub { text-align: center; color: var(--muted); font-size: 13.5px; margin: 0 0 22px; line-height: 1.5; }
+    .login label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .pw { position: relative; }
+    .pw input { width: 100%; height: 50px; border: 1px solid #C9D8EC; border-radius: 12px; padding: 0 48px 0 14px; font: inherit; font-size: 16px; background: #FAFCFF; color: var(--ink); letter-spacing: 2px; }
+    .pw input:focus { outline: 3px solid rgba(29,111,216,.25); outline-offset: 0; border-color: var(--blue); }
+    .pw button { position: absolute; right: 6px; top: 6px; width: 38px; height: 38px; border: 0; background: none; color: var(--muted); cursor: pointer; display: grid; place-items: center; }
+    .err { display: flex; gap: 8px; align-items: flex-start; margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #FDEEEC; color: #C42B1C; font-size: 13px; font-weight: 600; line-height: 1.45; white-space: pre-line; }
+    .err[hidden] { display: none; }
+    .is-err .pw input { border-color: #C42B1C; }
+    .btn-lg { width: 100%; height: 50px; margin-top: 16px; border: 0; border-radius: 999px; background: var(--navy); color: #fff; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; }
+    .btn-lg:disabled { opacity: .6; cursor: wait; }
+    .note { margin: 14px 0 0; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    [hidden] { display: none !important; }
+    .m-upd { display: none; }
+    @media (max-width: 560px) {
+      .bar .tag { display: none; } .upd .lbl { display: none; }
+      .m-upd { display: block; font-size: 12px; color: var(--muted); margin: -2px 2px -4px; }
+      .m-upd:empty { display: none; }
+    }
+    @media (max-width: 380px) { .pbar span { display: none; } }
+
+    /* 실제 화면용 */
+    .btn:disabled { opacity: .55; cursor: wait; }
+    .spin { display: inline-block; width: 13px; height: 13px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: sp .7s linear infinite; }
+    @keyframes sp { to { transform: rotate(360deg); } }
+    .loading-box { text-align: center; color: var(--muted); padding: 80px 0; font-size: 14px; }
+    .loading-box .spin { width: 22px; height: 22px; border-width: 3px; display: block; margin: 0 auto 12px; color: var(--navy); }
+    .more button, .linkbtn { border: 0; background: none; color: var(--blue); font: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer; padding: 4px 6px; }
+    tbody tr.p-row { cursor: pointer; }
+    tbody tr.p-row:hover td { background: #F8FBFF; }
+    tbody tr.p-row.is-open td { background: #F1F6FD; }
+    tr.p-detail td { background: #FBFCFE; white-space: normal; padding: 10px 12px 12px; }
+    .wl { display: flex; flex-wrap: wrap; gap: 6px; }
+    .wl span { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; font-size: 12.5px; }
+    .wl span small { color: var(--muted); margin-left: 4px; }
+    .empty { text-align: center; color: var(--muted); padding: 22px 0; }
+    .scroll-y { max-height: 248px; overflow-y: auto; }
+    .scroll-y th { z-index: 1; }
+    .trend-empty { height: 150px; display: grid; place-items: center; color: var(--muted); font-size: 13px; }
+    .page-err { background: #FDEEEC; color: #C42B1C; border-radius: 12px; padding: 14px 16px; font-weight: 600; white-space: pre-line; }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <div class="bar__in">
+      <img src="../assets/incar_logo.png" alt="INCAR">
+      <h1 id="bar-title" hidden>ISF 수요조사 현황</h1><span class="tag" id="bar-tag" hidden>마케팅부 전용</span>
+      <span class="sp"></span>
+      <div class="upd" id="bar-tools" hidden>
+        <span id="upd-text"></span>
+        <button class="btn" id="refresh-btn" type="button" aria-label="새로고침">↻<span class="lbl"> 새로고침</span></button>
+        <button class="btn" id="logout-btn" type="button">나가기</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 로그인 -->
+  <div id="view-login">
+    <form class="login" id="login-form" novalidate>
+      <div class="lock" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+      </div>
+      <span class="tag">마케팅부 전용</span>
+      <h1>ISF 수요조사 현황</h1>
+      <p class="sub">관계자만 확인할 수 있는 페이지입니다.<br>비밀번호를 입력해 주세요.</p>
+      <label for="pw">비밀번호</label>
+      <div class="pw">
+        <input id="pw" type="password" autocomplete="current-password" placeholder="비밀번호 입력">
+        <button type="button" id="pw-eye" aria-label="비밀번호 보기">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="err" id="login-err" hidden></div>
+      <button class="btn-lg" id="login-btn" type="submit">확인</button>
+      <p class="note">브라우저 탭을 닫으면 다시 입력해야 합니다.<br>문의 마케팅부 02-6222-7257</p>
+    </form>
+  </div>
+
+  <!-- 대시보드 -->
+  <main id="view-dash" hidden>
+    <div class="m-upd" id="m-upd"></div>
+    <div class="loading-box" id="dash-loading"><span class="spin"></span>현황을 불러오는 중입니다…</div>
+    <div class="page-err" id="dash-err" hidden></div>
+
+    <div id="dash" hidden style="display:contents">
+      <section class="kpis">
+        <div class="card kpi kpi--main">
+          <span>FA 응답률</span><strong id="k-rate"></strong><em id="k-rate-sub"></em>
+          <div class="prog"><i id="k-rate-bar"></i></div>
+        </div>
+        <div class="card kpi kpi--main kpi--mgr">
+          <span>관리자 응답률</span><strong id="k-mrate"></strong><em id="k-mrate-sub"></em>
+          <div class="prog"><i id="k-mrate-bar"></i></div>
+        </div>
+        <div class="card kpi"><span>참석</span><strong id="k-go"></strong><em id="k-go-sub"></em></div>
+        <div class="card kpi"><span>불참</span><strong id="k-no"></strong><em id="k-no-sub"></em></div>
+        <div class="card kpi kpi--wait"><span>미응답</span><strong id="k-wait"></strong><em>독려 필요</em></div>
+        <div class="card kpi"><span>예상 총 인원</span><strong id="k-all"></strong><em id="k-all-sub"></em></div>
+      </section>
+
+      <div class="grid2">
+        <section class="card">
+          <h2>부문별 현황 <small>달성 대상자 기준</small><span class="sp"></span>
+            <span class="legend"><span><b style="background:var(--go)"></b>참석</span><span><b style="background:var(--no)"></b>불참</span><span><b style="background:var(--wait)"></b>미응답</span></span>
+          </h2>
+          <div class="rows" id="div-rows"></div>
+        </section>
+
+        <section class="card">
+          <h2>관리자 입력 현황 <small>예상 관리자 인원 / 관리자 TO</small></h2>
+          <div style="display:flex;align-items:baseline;gap:8px"><strong style="font-size:24px" id="m-sum"></strong><span style="color:var(--muted)" id="m-to"></span><span style="flex:1"></span><b id="m-pct"></b></div>
+          <div class="prog prog--light" style="margin:8px 0 14px"><i id="m-bar"></i></div>
+          <div style="font-weight:700;font-size:13px;margin-bottom:8px">아직 입력 안 한 파트너 <span class="chip chip--wait" id="m-miss-n"></span></div>
+          <div class="tbl-wrap" id="m-wrap">
+            <table>
+              <thead><tr><th>부문</th><th>파트너</th><th class="num">관리자 TO</th></tr></thead>
+              <tbody id="m-body"></tbody>
+            </table>
+          </div>
+          <div class="more" id="m-more"></div>
+        </section>
+      </div>
+
+      <div class="grid2 grid2--eq">
+        <section class="card">
+          <h2>구간별 참석률 <small>응답자 중 참석</small></h2>
+          <div id="grade-rows"></div>
+        </section>
+        <section class="card trend">
+          <h2>날짜별 누적 응답</h2>
+          <div id="trend-box"></div>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>파트너별 상세 <small>응답률 낮은 순</small><span class="sp"></span><button class="btn" id="p-xlsx" type="button">엑셀 다운로드</button></h2>
+        <div class="tools">
+          <select id="p-div" aria-label="부문"></select>
+          <select id="p-hq" class="hide-m" aria-label="총괄"></select>
+          <input type="search" id="p-q" placeholder="파트너 이름 검색">
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <colgroup><col class="hide-m" style="width:13%"><col style="width:15%"><col style="width:7%"><col style="width:7%"><col class="hide-m" style="width:7%"><col style="width:9%"><col style="width:17%"><col class="hide-m" style="width:7%"><col class="hide-m" style="width:10%"><col class="hide-m" style="width:8%"></colgroup>
+            <thead>
+              <tr><th rowspan="2" class="hide-m">부문</th><th rowspan="2">파트너</th><th rowspan="2" class="ctr">대상</th><th rowspan="2" class="ctr">참석</th><th rowspan="2" class="ctr hide-m">불참</th><th rowspan="2" class="ctr">미응답</th><th rowspan="2" class="ctr">응답률</th><th rowspan="2" class="ctr hide-m">동반</th><th colspan="2" class="grp hide-m">관리자</th></tr>
+              <tr><th class="ctr hide-m bl">입력 인원</th><th class="ctr hide-m">TO</th></tr>
+            </thead>
+            <tbody id="p-body"></tbody>
+          </table>
+        </div>
+        <div class="more" id="p-more"></div>
+      </section>
+
+      <section class="card">
+        <h2>미응답자 명단 <span class="chip chip--wait" id="w-n"></span><span class="sp"></span><button class="btn btn--pri" id="w-xlsx" type="button">엑셀 다운로드</button></h2>
+        <div class="tools">
+          <select id="w-div" aria-label="부문"></select>
+          <select id="w-part" aria-label="파트너"></select>
+          <select id="w-grade" class="hide-m" aria-label="구간"></select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th class="hide-m">부문</th><th>파트너</th><th>이름</th><th class="hide-m">사원번호</th><th>최종달성</th></tr></thead>
+            <tbody id="w-body"></tbody>
+          </table>
+        </div>
+        <div class="more" id="w-more"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="admin.js?v=20261110a"></script>
+</body>
+</html>

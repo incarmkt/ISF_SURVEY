@@ -5,7 +5,7 @@ const CONFIG = {
   // Apps Script 웹 앱 주소 (FA 페이지 app.js와 같은 주소)
   API_URL: 'https://script.google.com/macros/s/AKfycbw9Ve3k9fg9Vb8z96iH87WusRqFfLaKgB_IrQufZNM1FB40OlXz3sBktkR2MkmD0rpmkw/exec',
   // 화면에 보이는 조사 기간 문구
-  PERIOD_TEXT: '미정'
+  PERIOD_TEXT: '2026.11.10 ~ 2027.08.31'
 };
 // ──────────────────────────────────────────────
 

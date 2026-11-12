@@ -116,3 +116,14 @@ body.tour-open { overflow: hidden; }
 .tab em, .stop__no { display: inline-flex; align-items: center; justify-content: center; line-height: 1; text-align: center; letter-spacing: 0; padding: 0; }
 .tab em { flex: none; box-sizing: border-box; width: 18px; height: 18px; font-size: 11px; }
 .stop__no { padding-top: .5px; }
+
+/* 기항지별 장 (가나자와·사카이미나토·나가사키 각각 한 장) */
+.slide--port .s3__head { background: var(--c); background: linear-gradient(160deg, var(--c), var(--c-dk)); padding: 18px 20px 16px; }
+.slide--port .s3__head h2 { display: flex; align-items: center; gap: 9px; font-size: 24px; margin-top: 6px; }
+.slide--port .s3__head h2 em { font-style: normal; flex: none; width: 26px; height: 26px; border-radius: 50%; background: #fff; color: var(--c); font-size: 14px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+.slide--port .s3__head h2 span { font-size: 11px; font-weight: 800; letter-spacing: .16em; opacity: .75; margin-left: 2px; align-self: flex-end; padding-bottom: 5px; }
+.slide--port .s3__body { background: var(--c-bg); }
+.port--kanazawa { --c-dk: #7E5A17; --c: #B8862B; --c-soft: #EBD9B4; --c-bg: #FBF6EC; }
+.port--sakai { --c-dk: #0F5E5E; --c: #1B8C8C; --c-soft: #BFE1E1; --c-bg: #EEF8F8; }
+.port--nagasaki { --c-dk: #973423; --c: #D5533F; --c-soft: #F3C9C1; --c-bg: #FDF1EE; }
+@media (max-height: 700px) { .slide--port .s3__head { padding: 12px 18px 11px; } .slide--port .s3__head h2 { font-size: 21px; margin-top: 3px; } }

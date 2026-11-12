@@ -111,3 +111,8 @@ body.tour-open { overflow: hidden; }
 .nt--v3 .nt__alert b { background: linear-gradient(180deg, transparent 58%, rgba(255, 221, 0, .8) 58%); padding: 0 2px; }
 @media (max-width: 360px) { .nt--v3 .nt__alert span { font-size: 14px; } .nt--v3 .nt__alert b { font-size: 15.5px; } }
 .notice-pop .btn--confirm { height: 52px; min-height: 0; padding: 0 16px; font-size: 16px; font-weight: 800; }
+
+/* 원 안 숫자 가운데 맞춤 */
+.tab em, .stop__no { display: inline-flex; align-items: center; justify-content: center; line-height: 1; text-align: center; letter-spacing: 0; padding: 0; }
+.tab em { flex: none; box-sizing: border-box; width: 18px; height: 18px; font-size: 11px; }
+.stop__no { padding-top: .5px; }

@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://script.googleusercontent.com">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="style.css?v=20261110b">
+  <link rel="stylesheet" href="tour.css?v=20261112a">
 </head>
 <body>
   <header class="topbar">
@@ -246,7 +247,57 @@
   </div>
 
   <!-- 중요 안내 (링크를 열 때마다 표시 · 확인 체크 후 닫힘) -->
-  <div id="notice" class="notice-pop" role="dialog" aria-modal="true" aria-labelledby="notice-title">
+  
+  <!-- 여행 안내 (링크 열면 처음 표시, 3장) -->
+  <div id="tour" class="tour" role="dialog" aria-modal="true" aria-label="ISF 크루즈 여행 안내" data-page="0">
+    <div class="tour__box">
+      <div class="tour__track">
+        <section class="slide slide--cover" aria-label="1/3 여행 소개">
+          <div class="cover__ph"><img src="assets/isf_cruise_ship.jpg" alt="항구를 떠나는 크루즈"></div>
+          <div class="cover__top"><span>2026 ISF 시상 여행</span></div>
+          <div class="cover__txt">
+            <small>ISF, 함께 도전하는 위대한 항해</small>
+            <h2>INCAR CRUISE</h2>
+            <p class="cover__route">가나자와 <i>›</i> 사카이미나토 <i>›</i> 나가사키</p>
+            <div class="cover__chips"><span>2027.10.13 ~ 10.18</span><span>5박 6일</span><span>아도라 크루즈</span></div>
+          </div>
+        </section>
+        <section class="slide" aria-label="2/3 항로">
+          <div class="map"><img src="assets/isf_route_map.svg" alt="가나자와, 사카이미나토, 나가사키 순서로 도는 크루즈 항로"></div>
+          <div class="s2">
+            <small class="kick">ROUTE · 2027.10.13 ~ 10.18</small>
+            <ol class="stops" id="tour-stops"></ol>
+          </div>
+        </section>
+        <section class="slide" aria-label="3/3 기항지 관광 코스">
+          <div class="s3">
+            <div class="s3__head"><small>SHORE EXCURSION</small><h2>기항지별 관광 코스</h2></div>
+            <div class="tabs" id="tour-tabs" role="tablist"></div>
+            <div class="s3__body" id="tour-body">
+            <ol class="courses" id="tour-courses"></ol>
+            <div class="fcfs">
+              <b>관광 코스는 <mark>선착순</mark>으로 신청받을 예정입니다</b>
+              <ul>
+                <li>참가 인원이 많아 기항지마다 코스를 나눠 운영합니다.</li>
+                <li>코스 신청 일정과 방법은 추후 별도로 공지드립니다.</li>
+                <li>이번 조사는 <em>ISF 참석 수요를 미리 파악</em>하기 위한 것으로, 최종 참가 확정이 아닙니다.</li>
+              </ul>
+            </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="tour__foot">
+        <button type="button" class="tour__ghost" id="tour-skip">건너뛰기</button>
+        <button type="button" class="tour__ghost" id="tour-prev">‹ 이전</button>
+        <div class="tour__dots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+        <button type="button" class="tour__btn" id="tour-next">다음 ›</button>
+        <button type="button" class="tour__btn" id="tour-start">수요조사 시작</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="notice" class="notice-pop" hidden role="dialog" aria-modal="true" aria-labelledby="notice-title">
     <div class="notice-pop__box">
       <div class="nt nt--v3">
         <span class="nt__tag">중요 안내</span>
@@ -260,14 +311,15 @@
         </dl>
       </div>
       <div class="notice-pop__foot">
-        <label class="notice-pop__check"><input id="notice-check" type="checkbox"> 위 환수 안내를 확인했습니다. (필수)</label>
-        <button id="notice-ok" type="button" class="btn btn--danger" disabled>확인하고 수요조사 시작</button>
+                <button id="notice-ok" type="button" class="btn btn--danger btn--confirm">확인하고 제출하기</button>
+        <button id="notice-cancel" type="button" class="notice-pop__back">입력 화면으로 돌아가기</button>
       </div>
     </div>
   </div>
 
   <div id="loading" class="loading" hidden><div class="spinner" role="status" aria-label="처리 중"></div></div>
 
-  <script src="app.js?v=20261110p"></script>
+  <script src="tour.js?v=20261111a"></script>
+  <script src="app.js?v=20261111a"></script>
 </body>
 </html>

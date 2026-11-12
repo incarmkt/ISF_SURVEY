@@ -1,0 +1,113 @@
+/* 여행 안내 팝업 (3장) */
+body.tour-open { overflow: hidden; }
+.tour { position: fixed; inset: 0; z-index: 40; background: rgba(10, 22, 48, .62); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.tour[hidden] { display: none; }
+.tour__box { position: relative; width: 100%; max-width: 440px; height: min(720px, calc(100dvh - 32px)); background: #fff; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0, 0, 0, .3); }
+.tour__track { flex: 1; min-height: 0; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.tour__track::-webkit-scrollbar { display: none; }
+.slide { position: relative; flex: 0 0 100%; min-width: 0; scroll-snap-align: start; display: flex; flex-direction: column; min-height: 0; }
+
+/* 1장: 표지 */
+.slide--cover { background: #061028; color: #fff; }
+.cover__ph { position: absolute; inset: 0; }
+.cover__ph img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 58%; display: block; }
+.cover__ph::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6, 16, 40, .5) 0%, rgba(6, 16, 40, 0) 20%, rgba(6, 16, 40, 0) 42%, rgba(6, 16, 40, .9) 74%, #061028 100%); }
+.cover__top { position: relative; padding: 16px 18px; }
+.cover__top span { font-size: 11.5px; font-weight: 800; border: 1px solid rgba(255, 255, 255, .7); background: rgba(255, 255, 255, .12); backdrop-filter: blur(4px); border-radius: 999px; padding: 4px 10px; }
+.cover__txt { position: relative; margin-top: auto; padding: 0 22px 18px; }
+.cover__txt small { font-size: 13px; font-weight: 600; opacity: .85; }
+.cover__txt h2 { margin: 4px 0 8px; font-size: 38px; line-height: 1.05; font-weight: 900; letter-spacing: .01em; }
+.cover__route { margin: 0 0 12px; font-size: 16px; font-weight: 800; color: #FFD08A; }
+.cover__route i { font-style: normal; opacity: .7; margin: 0 4px; }
+.cover__chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.cover__chips span { font-size: 12.5px; font-weight: 700; border: 1px solid rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .1); backdrop-filter: blur(6px); padding: 5px 10px; border-radius: 999px; }
+
+/* 2장: 항로 */
+.map { flex: 1 1 auto; min-height: 150px; background: #154A8C; overflow: hidden; }
+.map img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.s2 { flex: none; padding: 16px 18px 14px; }
+.s2 .kick { display: block; margin-bottom: 8px; }
+.kick { font-size: 11px; font-weight: 800; letter-spacing: .16em; color: var(--muted); }
+.s2 h2 { margin: 2px 0 10px; font-size: 21px; font-weight: 900; color: #15244A; }
+.stops { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.stop { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 12px; background: #F5F8FC; }
+.stop__no { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #FFB547; color: #0B2350; font-size: 12.5px; font-weight: 900; display: grid; place-items: center; }
+.stop__name { flex: 1; display: flex; align-items: baseline; gap: 8px; }
+.stop__name b { font-size: 15.5px; color: #15244A; }
+.stop__name small { font-size: 10.5px; letter-spacing: .12em; color: var(--muted); font-weight: 700; }
+.stop__cnt { font-size: 12px; font-weight: 800; color: var(--c); }
+.stop--kanazawa, .tab--kanazawa, .courses--kanazawa { --c: #B8862B; --c-soft: #EBD9B4; --c-bg: #FBF6EC; }
+.stop--sakai, .tab--sakai, .courses--sakai { --c: #1B8C8C; --c-soft: #BFE1E1; --c-bg: #EEF8F8; }
+.stop--nagasaki, .tab--nagasaki, .courses--nagasaki { --c: #D5533F; --c-soft: #F3C9C1; --c-bg: #FDF1EE; }
+
+/* 3장: 코스 */
+.s3 { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.s3__head { padding: 18px 20px 12px; background: linear-gradient(180deg, #0F2A5A, #1D4A8E); color: #fff; }
+.s3__head small { font-size: 11px; font-weight: 800; letter-spacing: .14em; opacity: .75; }
+.s3__head h2 { margin: 2px 0 0; font-size: 21px; font-weight: 900; }
+.tabs { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.tab { flex: 1; height: 38px; border: 1px solid var(--line); background: #fff; border-radius: 10px; font: inherit; font-size: 13.5px; font-weight: 700; color: var(--muted); cursor: pointer; padding: 0 4px; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.tab em { font-style: normal; width: 17px; height: 17px; border-radius: 50%; background: #E8EEF8; color: var(--muted); font-size: 10.5px; font-weight: 900; display: grid; place-items: center; }
+.tab[aria-selected="true"] { background: var(--c); border-color: var(--c); color: #fff; }
+.tab[aria-selected="true"] em { background: #fff; color: var(--c); }
+.s3__body { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px 14px; background: var(--c-bg); }
+.courses { list-style: none; margin: 0; padding: 0; flex: 1 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.course { flex: 1 0 auto; background: #fff; border-radius: 12px; padding: 12px 13px; border: 1px solid var(--c-soft); display: flex; gap: 10px; align-items: center; }
+.course__no { flex: none; font-size: 11.5px; font-weight: 800; color: #fff; background: var(--c); border-radius: 6px; padding: 3px 7px; }
+.course__stops { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; font-size: 14px; font-weight: 600; color: #15244A; line-height: 1.55; word-break: keep-all; }
+.course__stops li + li::before { content: '→'; color: var(--c); font-weight: 800; margin: 0 5px; }
+.course__stops small { font-size: 11px; color: var(--muted); margin-left: 3px; }
+.fcfs { flex: none; background: #fff; border: 1px solid #F1DDAE; border-left: 4px solid #E39A12; border-radius: 12px; padding: 12px 14px 12px 13px; }
+.fcfs b { display: block; position: relative; padding-left: 25px; font-size: 14.5px; color: #8A5A00; }
+.fcfs b::before { content: '!'; position: absolute; left: 0; top: 1px; width: 18px; height: 18px; border-radius: 50%; background: #E39A12; color: #fff; font-size: 11px; font-weight: 900; display: grid; place-items: center; }
+.fcfs ul { margin: 7px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; }
+.fcfs li { position: relative; padding-left: 12px; font-size: 12.5px; line-height: 1.5; color: #5B4A26; word-break: keep-all; }
+.fcfs li::before { content: ''; position: absolute; left: 2px; top: .62em; width: 4px; height: 4px; border-radius: 50%; background: #E39A12; }
+.fcfs em { font-style: normal; font-weight: 800; color: #8A5A00; }
+.fcfs mark { background: #E39A12; color: #fff; border-radius: 5px; padding: 0 5px; margin: 0 1px; }
+.fcfs b { line-height: 1.4; word-break: keep-all; }
+
+/* 아래 버튼 */
+.tour__foot { flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 10px 16px 16px; border-top: 1px solid var(--line); background: #fff; }
+.tour__dots { display: flex; gap: 6px; }
+.tour__dots i { width: 7px; height: 7px; border-radius: 99px; background: #CFD9E8; transition: width .2s; }
+.tour__dots i.on { width: 20px; background: var(--navy); }
+.tour__ghost { justify-self: start; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 700; color: var(--muted); padding: 10px 4px; cursor: pointer; }
+.tour__btn { justify-self: end; height: 46px; border: 0; border-radius: 999px; background: var(--navy); color: #fff; font: inherit; font-size: 15px; font-weight: 800; padding: 0 22px; cursor: pointer; white-space: nowrap; }
+.tour[data-page="first"] #tour-prev, .tour[data-page="first"] #tour-start, .tour[data-page="mid"] #tour-skip, .tour[data-page="mid"] #tour-start, .tour[data-page="last"] #tour-skip, .tour[data-page="last"] #tour-next { display: none; }
+
+/* 관리자(주황) */
+.theme-mgr .s3__head { background: linear-gradient(180deg, #8A3A12, #CF5E24); }
+.theme-mgr .stop { background: #FFF6EF; }
+
+/* 짧은 화면 */
+@media (max-height: 700px) {
+  .cover__txt h2 { font-size: 32px; }
+  .s2 { padding: 12px 16px 10px; } .s2 h2 { font-size: 19px; margin-bottom: 8px; }
+  .stop { padding: 7px 10px; }
+  .s3__head { padding: 12px 18px 10px; } .s3__head h2 { font-size: 19px; }
+  .fcfs { padding: 9px 12px; } .fcfs b { font-size: 13.5px; } .fcfs ul { margin-top: 4px; gap: 1px; } .fcfs li { font-size: 12px; }
+  .course { padding: 7px 11px; } .course__stops { font-size: 13px; line-height: 1.45; }
+  .s3__body { gap: 8px; padding: 10px 12px; } .courses { gap: 6px; }
+  .tabs { padding: 8px 12px; } .tab { height: 34px; }
+}
+@media (max-width: 480px) {
+  .tour { padding: 10px; }
+  .tour__box { height: min(720px, calc(100dvh - 20px)); border-radius: 18px; }
+}
+
+/* 환수 안내 팝업: 돌아가기 */
+.notice-pop[hidden] { display: none; }
+.notice-pop__back { border: 0; background: none; font: inherit; font-size: 13.5px; font-weight: 700; color: var(--muted); padding: 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.notice-pop .btn--confirm { height: auto; min-height: 58px; padding: 9px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.3; }
+.notice-pop .btn--confirm span { font-size: 16px; font-weight: 800; }
+.notice-pop .btn--confirm small { font-size: 12px; font-weight: 600; opacity: .85; }
+
+/* 환수 팝업: 핵심 문장 박스 (가로형) */
+.nt--v3 .nt__alert { flex-direction: row; justify-content: flex-start; text-align: left; gap: 0; padding: 14px; border: 2px solid #D7263D; background: #FFF0F2; }
+.nt--v3 .nt__alert i { width: 38px; height: 38px; font-size: 21px; margin-right: 12px; }
+.nt--v3 .nt__alert span { flex: 1; padding-left: 12px; border-left: 2px solid rgba(200, 16, 46, .22); font-size: 15.5px; line-height: 1.5; word-break: keep-all; }
+.nt--v3 .nt__alert b { font-size: 17px; }
+.nt--v3 .nt__alert b { background: linear-gradient(180deg, transparent 58%, rgba(255, 221, 0, .8) 58%); padding: 0 2px; }
+@media (max-width: 360px) { .nt--v3 .nt__alert span { font-size: 14px; } .nt--v3 .nt__alert b { font-size: 15.5px; } }
+.notice-pop .btn--confirm { height: 52px; min-height: 0; padding: 0 16px; font-size: 16px; font-weight: 800; }

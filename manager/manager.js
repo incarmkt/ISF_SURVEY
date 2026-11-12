@@ -29,6 +29,7 @@ function show(screen, push = true) {
 history.replaceState({ screen: 'intro' }, '');
 
 window.addEventListener('popstate', (e) => {
+  if (!$('#notice').hidden) { closeNotice(); return; }
   if (!$('#consent-sheet').hidden) { closeConsent(); return; }
   if (!$('#welcome').hidden) { closeWelcome(); return; }
   const to = (e.state && e.state.screen) || 'intro';
@@ -37,6 +38,7 @@ window.addEventListener('popstate', (e) => {
 });
 
 $('#back-btn').addEventListener('click', () => {
+  if (!$('#notice').hidden) { closeNotice(); return; }
   if (!$('#consent-sheet').hidden) { closeConsent(); return; }
   if (!$('#welcome').hidden) { closeWelcome(); return; }
   history.back();
@@ -144,6 +146,7 @@ function openWelcome(info) {
 }
 function closeWelcome() { $('#welcome').hidden = true; }
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('#notice').hidden) { closeNotice(); return; }
   if (e.key === 'Escape' && !$('#consent-sheet').hidden) { closeConsent(); return; }
   if (e.key === 'Escape' && !$('#welcome').hidden) closeWelcome();
 });
@@ -214,8 +217,14 @@ $$('[data-step]').forEach((b) => b.addEventListener('click', () => {
   refreshForm();
 }));
 
-$('#count-form').addEventListener('submit', async (e) => {
+// 1명 이상으로 제출할 때는 먼저 환수 안내 팝업을 띄우고, 확인해야 실제 제출
+$('#count-form').addEventListener('submit', (e) => {
   e.preventDefault();
+  if (currentCount() > 0) return openNotice(doSubmit);
+  doSubmit();
+});
+
+async function doSubmit() {
   const err = $('#submit-error');
   err.hidden = true;
   const res = await api({ action: 'msubmit', empNo: state.empNo, birth: state.birth, agree: true,
@@ -228,12 +237,18 @@ $('#count-form').addEventListener('submit', async (e) => {
   setText('s-at', res.submittedAt);
   if (res.deadline) setText('deadline', res.deadline);
   show('done');
-});
+}
 
 // ─────────────── 시작 ───────────────
 setText('period', CONFIG.PERIOD_TEXT);
 updateAgree();
 
-// ─────────────── 중요 안내 팝업 (링크 열 때마다) ───────────────
-$('#notice-check').addEventListener('change', (e) => { $('#notice-ok').disabled = !e.target.checked; });
-$('#notice-ok').addEventListener('click', () => { $('#notice').hidden = true; });
+// ─────────────── 환수 안내 팝업 (제출 직전) ───────────────
+let noticeNext = null;
+function openNotice(next) {
+  noticeNext = next;
+  $('#notice').hidden = false;
+}
+function closeNotice() { $('#notice').hidden = true; noticeNext = null; }
+$('#notice-ok').addEventListener('click', () => { const next = noticeNext; closeNotice(); if (next) next(); });
+$('#notice-cancel').addEventListener('click', closeNotice);

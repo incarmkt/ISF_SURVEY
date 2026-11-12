@@ -127,3 +127,7 @@ body.tour-open { overflow: hidden; }
 .port--sakai { --c-dk: #0F5E5E; --c: #1B8C8C; --c-soft: #BFE1E1; --c-bg: #EEF8F8; }
 .port--nagasaki { --c-dk: #973423; --c: #D5533F; --c-soft: #F3C9C1; --c-bg: #FDF1EE; }
 @media (max-height: 700px) { .slide--port .s3__head { padding: 12px 18px 11px; } .slide--port .s3__head h2 { font-size: 21px; margin-top: 3px; } }
+
+/* 첫 화면: 안내 다시 보기 버튼 */
+.tour-reopen { margin-top: 12px; width: 100%; height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--blue-soft); color: var(--navy); font: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; }
+.tour-reopen:hover { filter: brightness(.97); }

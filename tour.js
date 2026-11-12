@@ -74,5 +74,14 @@
   document.body.classList.add('tour-open');
   sync();
 
+  // 첫 화면 [항로·기항지 관광 코스 보기] → 안내 다시 열기 (처음 장부터)
+  const reopen = document.getElementById('tour-reopen');
+  if (reopen) reopen.addEventListener('click', () => {
+    tour.hidden = false;
+    document.body.classList.add('tour-open');
+    track.scrollTo({ left: 0 });
+    sync();
+  });
+
   window.ISF_TOUR = { go }; // 시안 촬영용
 })();

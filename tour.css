@@ -131,3 +131,144 @@ body.tour-open { overflow: hidden; }
 /* 첫 화면: 안내 다시 보기 버튼 */
 .tour-reopen { margin-top: 12px; width: 100%; height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--blue-soft); color: var(--navy); font: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; }
 .tour-reopen:hover { filter: brightness(.97); }
+
+/* ── 큰 글씨 버전 (기항지 장·선착순 안내·다시보기 버튼) ── */
+.slide--port .s3__head { padding: 18px 20px 16px; }
+.slide--port .s3__head h2 { margin-top: 0; font-size: 26px; gap: 10px; }
+.slide--port .s3__head h2 em { width: auto; height: auto; border-radius: 999px; padding: 5px 12px; font-size: 15px; }
+.slide--port .s3__head h2 span { font-size: 12px; padding-bottom: 6px; }
+.slide--port .s3__body { gap: 12px; padding: 14px 14px 16px; }
+.slide--port .courses { flex: 0 0 auto; gap: 10px; }
+.slide--port .course { flex: 0 0 auto; padding: 14px 14px; gap: 12px; align-items: flex-start; border-width: 1.5px; }
+.slide--port .course__no { font-size: 14px; padding: 4px 9px; border-radius: 8px; margin-top: 1px; }
+.slide--port .course__stops { font-size: 17px; font-weight: 700; line-height: 1.6; }
+.slide--port .course__stops li + li::before { margin: 0 6px; }
+.slide--port .course__stops small { font-size: 13.5px; }
+.slide--port .fcfs { padding: 15px 16px 15px 15px; }
+.slide--port .fcfs b { font-size: 17px; padding-left: 29px; }
+.slide--port .fcfs b::before { width: 21px; height: 21px; font-size: 13px; top: 2px; }
+.slide--port .fcfs ul { margin-top: 9px; gap: 5px; }
+.slide--port .fcfs li { font-size: 15px; line-height: 1.55; padding-left: 13px; }
+.slide--port .fcfs li::before { width: 5px; height: 5px; }
+.stop__name b { font-size: 17px; } .stop__cnt { font-size: 13.5px; }
+.tour-reopen { height: 52px; font-size: 16.5px; }
+.tour-reopen svg { width: 20px; height: 20px; }
+@media (max-height: 700px) {
+  .slide--port .s3__head { padding: 12px 18px 11px; } .slide--port .s3__head h2 { font-size: 22px; }
+  .slide--port .s3__body { gap: 9px; padding: 10px 12px 12px; } .slide--port .courses { gap: 7px; }
+  .slide--port .course { padding: 9px 11px; } .slide--port .course__stops { font-size: 15.5px; line-height: 1.5; }
+  .slide--port .fcfs { padding: 11px 12px; } .slide--port .fcfs b { font-size: 15.5px; } .slide--port .fcfs li { font-size: 13.5px; }
+}
+
+/* 코스는 위아래로 넘겨 보고, 선착순 안내는 아래에 고정 */
+.slide--port .s3__body { gap: 0; padding: 12px 14px; }
+.slide--port .course__stops { display: block; }
+.slide--port .course__stops li { display: inline; }
+.slide--port .course__stops li + li::before { margin: 0 5px; }
+.slide--port .s3__foot { flex: none; padding: 0 14px 12px; background: var(--c-bg); position: relative; }
+.slide--port .s3__foot::before { content: ''; position: absolute; left: 0; right: 0; top: -18px; height: 18px; background: linear-gradient(180deg, transparent, var(--c-bg)); pointer-events: none; }
+.slide--port .fcfs { padding: 13px 15px; }
+.slide--port .fcfs b { font-size: 16.5px; }
+.slide--port .fcfs ul { margin-top: 7px; gap: 4px; }
+.slide--port .fcfs li { font-size: 14.5px; line-height: 1.5; }
+@media (max-height: 700px) {
+  .slide--port .s3__body { padding: 9px 12px; }
+  .slide--port .s3__foot { padding: 0 12px 9px; }
+  .slide--port .fcfs { padding: 10px 12px; } .slide--port .fcfs b { font-size: 15px; } .slide--port .fcfs li { font-size: 13px; }
+}
+.slide--port .course__stops { white-space: normal; }
+.slide--port .courses { gap: 8px; }
+.slide--port .course { padding: 11px 13px; }
+.slide--port .more-hint { display: none; text-align: center; font-size: 13px; font-weight: 700; color: var(--c); padding: 4px 0 0; }
+.slide--port.has-more .more-hint { display: block; }
+.slide--port .more-hint { padding: 0 0 6px; margin: -4px 0 0; }
+.slide--port .course__stops li:not(.long) { white-space: nowrap; }
+
+/* 부산 도착 (마지막 기항지 코스 끝) */
+.slide--port .course__stops li.end { white-space: nowrap; }
+
+/* ── 코스 보기 방식 A: 장소마다 칩 ── */
+.lay-chips .slide--port .course { flex-direction: column; gap: 9px; padding: 12px 13px 13px; }
+.lay-chips .slide--port .course__stops { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 0; line-height: 1.3; }
+.lay-chips .slide--port .course__stops li { display: inline-flex; align-items: center; }
+.lay-chips .slide--port .course__stops li > span, .lay-chips .slide--port .course__stops li { }
+.lay-chips .slide--port .course__stops li { font-size: 16px; }
+.lay-chips .slide--port .course__stops li + li::before { content: '›'; font-size: 20px; font-weight: 900; margin: 0 7px; }
+.lay-chips .slide--port .course__stops li .chip { background: var(--c-bg); border: 1.5px solid var(--c-soft); border-radius: 9px; padding: 6px 10px; }
+.lay-chips .slide--port .course__stops li.end .chip { background: #1D6FD8; border-color: #1D6FD8; color: #fff; }
+
+/* ── 코스 보기 방식 B: 장소마다 한 줄 (타임라인) ── */
+.lay-line .slide--port .course { padding: 12px 14px; }
+.lay-line .slide--port .course__stops { display: flex; flex-direction: column; gap: 0; line-height: 1.35; padding-left: 2px; }
+.lay-line .slide--port .course__stops li { display: block; white-space: normal; position: relative; padding: 4px 0 4px 20px; font-size: 16.5px; }
+.lay-line .slide--port .course__stops li + li::before { content: none; }
+.lay-line .slide--port .course__stops li::after { content: ''; position: absolute; left: 3px; top: 11px; width: 9px; height: 9px; border-radius: 50%; background: #fff; border: 2.5px solid var(--c); box-sizing: border-box; }
+.lay-line .slide--port .course__stops li:not(:last-child) { background: linear-gradient(var(--c-soft), var(--c-soft)) no-repeat 6.5px 20px / 2px calc(100% - 9px); }
+.lay-line .slide--port .course__stops li.end { color: #1D6FD8; font-weight: 800; }
+.lay-line .slide--port .course__stops li.end::after { background: #1D6FD8; border-color: #1D6FD8; }
+.slide--port .course__stops { text-align: left; flex: 1; min-width: 0; }
+.lay-line .slide--port .course { align-items: flex-start; }
+.lay-line .slide--port .course__no { margin-top: 4px; }
+.lay-line .slide--port .course__stops li .chip { display: inline; }
+.lay-chips .slide--port .course__stops li .chip small { margin-left: 4px; }
+.lay-line .slide--port .course__stops { align-items: stretch; }
+
+/* ── 스크롤 없이 한 화면에: 코스 2열 배치 ── */
+.lay-grid .tour__box { height: min(800px, calc(100dvh - 20px)); }
+.lay-grid .slide--port .s3__head { padding: 14px 18px 12px; }
+.lay-grid .slide--port .s3__head h2 { font-size: 24px; }
+.lay-grid .slide--port .s3__body { padding: 10px 10px 8px; }
+.lay-grid .slide--port .courses { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: stretch; }
+.lay-grid .slide--port .course { flex-direction: column; gap: 6px; padding: 10px 10px 9px; margin: 0; }
+.lay-grid .slide--port .course:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.lay-grid .slide--port .course__no { margin-top: 0; font-size: 13px; padding: 3px 9px; }
+.lay-grid .slide--port .course__stops { width: 100%; padding-left: 0; }
+.lay-grid .slide--port .course__stops li { font-size: 15.5px; padding: 3px 0 3px 18px; line-height: 1.32; white-space: normal !important; word-break: keep-all; }
+.lay-grid .slide--port .course__stops li::after { left: 2px; top: 8px; width: 9px; height: 9px; }
+.lay-grid .slide--port .course__stops li:not(:last-child) { background-position: 5.5px 17px; }
+.lay-grid .slide--port .course__stops small { font-size: 12.5px; }
+.lay-grid .slide--port .s3__foot { padding: 0 10px 10px; }
+.lay-grid .slide--port .s3__foot::before { content: none; }
+.lay-grid .slide--port .fcfs { padding: 11px 13px; }
+.lay-grid .slide--port .fcfs b { font-size: 16px; }
+.lay-grid .slide--port .fcfs ul { margin-top: 6px; gap: 3px; }
+.lay-grid .slide--port .fcfs li { font-size: 14px; line-height: 1.45; }
+.lay-grid .tour__foot { padding: 8px 16px 12px; }
+@media (max-height: 760px) {
+  .lay-grid .slide--port .s3__head { padding: 10px 16px 9px; } .lay-grid .slide--port .s3__head h2 { font-size: 21px; }
+  .lay-grid .slide--port .course__stops li { font-size: 14px; padding: 2px 0 2px 17px; }
+  .lay-grid .slide--port .course__stops li::after { top: 7px; }
+  .lay-grid .slide--port .course { padding: 8px 9px 7px; gap: 4px; }
+  .lay-grid .slide--port .courses { gap: 6px; }
+  .lay-grid .slide--port .fcfs { padding: 9px 11px; } .lay-grid .slide--port .fcfs b { font-size: 14.5px; } .lay-grid .slide--port .fcfs li { font-size: 12.5px; }
+}
+
+.lay-grid .slide--port .courses { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.lay-grid .slide--port .course { min-width: 0; }
+/* 나가사키: 모든 코스 공통 마무리 (시내면세점 → 부산 도착) */
+.slide--port .tail { margin-top: 8px; display: flex; align-items: center; gap: 10px; background: #fff; border: 1.5px dashed var(--c-soft); border-radius: 12px; padding: 9px 12px; }
+.slide--port .tail__lbl { flex: none; font-size: 13px; font-weight: 800; color: var(--c); background: var(--c-bg); border-radius: 8px; padding: 4px 8px; }
+.slide--port .tail .tail__stops { display: flex !important; flex-direction: row !important; flex-wrap: wrap; align-items: center; padding: 0; }
+.slide--port .tail .tail__stops li { padding: 0 !important; background: none !important; font-size: 15.5px; font-weight: 800; white-space: nowrap; }
+.slide--port .tail .tail__stops li::after { content: none !important; }
+.slide--port .tail .tail__stops li + li::before { content: '→' !important; color: var(--c); margin: 0 6px; }
+.slide--port .tail .tail__stops li.end { color: #1D6FD8; }
+
+.lay-grid .slide--port .course__stops li { font-size: 17px; line-height: 1.3; padding: 4px 0 4px 19px; }
+.lay-grid .slide--port .course__stops li::after { top: 10px; }
+.lay-grid .slide--port .course__no { font-size: 14px; }
+.lay-grid .slide--port .tail .tail__stops li { font-size: 17px; }
+@media (max-height: 820px) { .lay-grid .slide--port .course__stops li { font-size: 15.5px; padding: 3px 0 3px 18px; } .lay-grid .slide--port .course__stops li::after { top: 8px; } }
+@media (max-height: 760px) { .lay-grid .slide--port .course__stops li { font-size: 14px; padding: 2px 0 2px 17px; } .lay-grid .slide--port .course__stops li::after { top: 7px; } .lay-grid .slide--port .tail .tail__stops li { font-size: 14.5px; } .lay-grid .slide--port .tail { padding: 7px 10px; margin-top: 6px; } }
+
+.lay-grid .slide--port .course__stops li { font-size: var(--fs, 17px) !important; padding: calc(var(--fs, 17px) * .2) 0 calc(var(--fs, 17px) * .2) 18px !important; }
+.lay-grid .slide--port .course__stops li::after { top: calc(var(--fs, 17px) * .2 + var(--fs, 17px) * .65 - 4.5px) !important; }
+.lay-grid .slide--port .tail .tail__stops li { font-size: var(--fs, 17px) !important; padding: 0 !important; }
+
+/* 세로 목록(B안) 글씨 한 단계 크게 */
+.lay-line .slide--port .course__stops li { font-size: 18px; padding: 4px 0 4px 21px; line-height: 1.35; }
+.lay-line .slide--port .course__stops li::after { top: 12px; width: 10px; height: 10px; }
+.lay-line .slide--port .course__stops li:not(:last-child) { background-position: 7px 22px; }
+.lay-line .slide--port .course__stops small { font-size: 14px; }
+.lay-line .slide--port .course__no { font-size: 14.5px; }
+@media (max-height: 700px) { .lay-line .slide--port .course__stops li { font-size: 16.5px; padding: 3px 0 3px 20px; } .lay-line .slide--port .course__stops li::after { top: 10px; } }

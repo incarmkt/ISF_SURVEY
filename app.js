@@ -5,7 +5,7 @@ const CONFIG = {
   // Apps Script 웹 앱 주소 (배포 → 배포 관리에서 확인)
   API_URL: 'https://script.google.com/macros/s/AKfycbw9Ve3k9fg9Vb8z96iH87WusRqFfLaKgB_IrQufZNM1FB40OlXz3sBktkR2MkmD0rpmkw/exec',
   // 화면에 보이는 조사 기간 문구
-  PERIOD_TEXT: '2026.11.13(금) ~ 2026.11.20(금)',
+  PERIOD_TEXT: '2026.11.16(월) ~ 2026.11.23(월)',
   // 동반인 관계 중 한 명만 선택할 수 있는 항목 (자녀·형제·자매는 여러 명 가능)
   UNIQUE_RELATIONS: ['배우자', '부', '모']
 };

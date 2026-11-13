@@ -36,25 +36,38 @@
 
   // 기항지마다 한 장씩: 코스 + 선착순 안내
   const fcfs = $('#tour-fcfs').innerHTML;
-  const stopHtml = (s) => { const m = s.match(/^(.*?)\s*\((.+)\)$/); return m ? `${m[1]}<small>${m[2]}</small>` : s; };
+  // 짧은 장소명은 중간에서 줄이 끊기지 않게 (예: 나가마치 무사마을)
+  const keep = (t) => t;
+  const stopHtml = (s) => { const m = s.match(/^(.*?)\s*\((.+)\)$/); return m ? `${keep(m[1])}<small>${m[2]}</small>` : keep(s); };
   track.insertAdjacentHTML('beforeend', PORTS.map((p, i) => `
     <section class="slide slide--port port--${p.key}" aria-label="기항지 ${i + 1} ${p.name} 관광 코스">
       <div class="s3">
         <div class="s3__head">
-          <small>PORT TOUR · 기항지 ${i + 1}/${PORTS.length}</small>
-          <h2><em>${i + 1}</em>${p.name}<span>${p.en}</span></h2>
+          <h2><em>기항지 ${i + 1}</em>${p.name}<span>${p.en}</span></h2>
         </div>
         <div class="s3__body">
           <ol class="courses">${p.courses.map((c, n) => `
             <li class="course"><span class="course__no">${n + 1}코스</span>
-              <ol class="course__stops">${c.map((s) => `<li>${stopHtml(s)}</li>`).join('')}</ol></li>`).join('')}
+              <ol class="course__stops">${c.map((s) => `<li${s.replace(/\s*\(.+\)$/, '').length > 14 ? ' class="long"' : ''}><span class="chip">${stopHtml(s)}</span></li>`).join(' ')}${i === PORTS.length - 1 ? ' <li class="end"><span class="chip">부산 도착</span></li>' : ''}</ol></li>`).join('')}
           </ol>
-          ${fcfs}
+          ${p.tail ? `<div class="tail"><span class="tail__lbl">모든 코스 공통</span><ol class="course__stops tail__stops">${p.tail.map((s, n) => `<li${n === p.tail.length - 1 ? ' class="end"' : ''}><span class="chip">${stopHtml(s)}</span></li>`).join(' ')}</ol></div>` : ''}
         </div>
+        <div class="s3__foot"><p class="more-hint">아래로 밀면 코스가 더 있어요 ↓</p>${fcfs}</div>
       </div>
     </section>`).join(''));
 
   const PAGES = tour.querySelectorAll('.slide').length;
+  // 코스가 화면보다 길면 '더 있어요' 안내 표시
+  // 화면 높이에 맞춰 코스 글씨 크기를 자동 조절 (17px → 최소 13px), 그래도 넘치면 '더 있어요' 안내
+  const markMore = () => tour.querySelectorAll('.slide--port').forEach((sl) => {
+    const bd = sl.querySelector('.s3__body');
+    let fs = 17;
+    sl.style.setProperty('--fs', fs + 'px');
+    while (fs > 13 && bd.scrollHeight > bd.clientHeight + 1) { fs -= 0.5; sl.style.setProperty('--fs', fs + 'px'); }
+    sl.classList.toggle('has-more', bd.scrollHeight > bd.clientHeight + 4);
+  });
+  window.addEventListener('resize', markMore);
+  requestAnimationFrame(markMore);
   $('#tour-dots').innerHTML = Array.from({ length: PAGES }, () => '<i></i>').join('');
 
   // 넘기기 (손가락으로 밀거나 버튼으로)

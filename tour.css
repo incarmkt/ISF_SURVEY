@@ -272,3 +272,18 @@ body.tour-open { overflow: hidden; }
 .lay-line .slide--port .course__stops small { font-size: 14px; }
 .lay-line .slide--port .course__no { font-size: 14.5px; }
 @media (max-height: 700px) { .lay-line .slide--port .course__stops li { font-size: 16.5px; padding: 3px 0 3px 20px; } .lay-line .slide--port .course__stops li::after { top: 10px; } }
+/* 표지 문구: 카드뉴스와 통일 (20261113g) */
+.cover__txt h2 { font-size: clamp(26px, 8.4vw, 32px); line-height: 1.22; letter-spacing: -.02em; word-break: keep-all; }
+.cover__txt h2 em { font-style: normal; color: #FFD08A; }
+.cover__route { font-size: 15px; letter-spacing: -.01em; }
+@media (max-height: 700px) { .cover__txt h2 { font-size: 26px; } }
+/* 표지 문구 크게 (20261113h) */
+.cover__txt small { font-size: 15px; }
+.cover__txt h2 { font-size: clamp(31px, 10vw, 40px); line-height: 1.2; margin: 6px 0 10px; }
+.cover__route { font-size: clamp(15px, 4.6vw, 18px); margin-bottom: 14px; }
+.cover__route i { margin: 0 3px; }
+@media (max-height: 700px) { .cover__txt h2 { font-size: 31px; } .cover__route { font-size: 15.5px; } }
+/* 표지 글씨 굵기 보강 (20261113i) */
+.cover__txt small { font-weight: 700; }
+.cover__txt h2 { letter-spacing: -.01em; }
+.cover__route { font-weight: 900; }

@@ -131,8 +131,9 @@ function render(d) {
   $('#k-go-sub').textContent = `응답자의 ${pct(t.go, answered)}%`;
   $('#k-no').textContent = fmt(t.no);
   $('#k-no-sub').textContent = `응답자의 ${pct(t.no, answered)}%`;
-  $('#k-wait').textContent = fmt(t.wait);
-  $('#k-wait-sub').textContent = `FA ${fmt(t.wait)}명 · 관리자 ${fmt(m.missing.length)}곳`;
+  const missTo = m.missing.reduce((a, x) => a + (Number(x[2]) || 0), 0);
+  $('#k-wait').textContent = fmt(t.wait + missTo);
+  $('#k-wait-sub').textContent = `FA ${fmt(t.wait)} + 관리자 ${fmt(missTo)}`;
   $('#k-all').textContent = fmt(t.go + t.comp + m.sum);
   $('#k-all-sub').textContent = `FA ${fmt(t.go)} + 동반 ${fmt(t.comp)} + 관리자 ${fmt(m.sum)}`;
 
@@ -445,13 +446,16 @@ function estimate() {
   const d = st.data, t = d.total, m = d.mgr;
   const allRate = t.go + t.no ? t.go / (t.go + t.no) : 0;
   const rows = d.grades.map(([g, tt, go, no, comp, lim, wait]) => {
+    tt = Number(tt) || 0; go = Number(go) || 0; no = Number(no) || 0; comp = Number(comp) || 0;
+    wait = (wait === undefined || wait === null || wait === '') ? Math.max(0, tt - go - no) : Number(wait) || 0;
+    lim = Number(lim) || 0;
     const rate = go + no ? go / (go + no) : allRate;
     const avgComp = go ? comp / go : 0;
     const eGo = wait * rate, eComp = Math.min(eGo * avgComp, eGo * lim);
     return { g, tt, go, no, comp, lim, wait, eGo, eComp, maxComp: wait * lim };
   });
   const sum = (k) => rows.reduce((a, r) => a + r[k], 0);
-  const missTo = m.missing.reduce((a, x) => a + x[2], 0);
+  const missTo = m.missing.reduce((a, x) => a + (Number(x[2]) || 0), 0);
   const enteredTo = m.to - missTo;
   const mRate = enteredTo ? m.sum / enteredTo : 1;
   const now = t.go + t.comp + m.sum;
@@ -461,6 +465,11 @@ function estimate() {
 
 var POP_V = 'I';
 function waitPopHtml() {
+  const old = !(st.data.grades[0] && st.data.grades[0].length >= 7);
+  const warn = old ? '<p class="pp-warn">Apps Script가 최신 버전(v46)이 아니라 구간별 동반 한도를 못 받아왔어요. 새 버전 배포 후 [대시보드 숫자 즉시 갱신]을 눌러주세요.</p>' : '';
+  return warn + waitPopHtml0();
+}
+function waitPopHtml0() {
   const d = st.data, t = d.total, m = d.mgr, e = estimate();
   const rows = e.rows.slice().reverse().map((r) => `<tr><td>${esc(r.g)}</td><td class="w">${fmt(r.wait)}</td><td class="hide-m">${r.lim ? r.lim + '명' : '-'}</td><td>${fmt(r.maxComp)}</td><td class="em">${fmt(r.wait + r.maxComp)}</td></tr>`).join('');
   const addE = e.eGo + e.eComp + e.eMgr, addM = e.wait + e.maxComp + e.missTo;

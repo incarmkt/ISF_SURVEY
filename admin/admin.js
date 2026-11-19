@@ -23,7 +23,7 @@ const ss = {
   clear() { mem.pw = ''; try { sessionStorage.removeItem(KEY); } catch (e) { /* noop */ } }
 };
 const mem = { pw: '' };
-const st = { pSort: 'rate_asc', data: null, pShow: CONFIG.PAGE, wShow: CONFIG.WAIT_PAGE, missAll: false, open: '' };
+const st = { dShow: CONFIG.PAGE, pSort: 'rate_asc', data: null, pShow: CONFIG.PAGE, wShow: CONFIG.WAIT_PAGE, missAll: false, open: '' };
 
 async function api(payload) {
   try {
@@ -234,13 +234,42 @@ $('#w-part').addEventListener('change', () => { st.wShow = CONFIG.WAIT_PAGE; ren
 $('#w-grade').addEventListener('change', () => { st.wShow = CONFIG.WAIT_PAGE; renderWaiting(); });
 
 // ─────────────── 파트너별 상세 ───────────────
-function partnerRows() {
+function partnerRows(all) {
   const dv = $('#p-div').value, hq = $('#p-hq').value, q = $('#p-q').value.trim().toLowerCase();
   return st.data.partners
     .filter((p) => (!dv || p[0] === dv) && (!hq || p[1] === hq) && (!q || String(p[2]).toLowerCase().includes(q)))
     .map((p) => ({ p, rate: p[3] ? (p[4] + p[5]) / p[3] : -1 }))
+    .filter((x) => all || !isDone(x.p))
     .sort(SORTS[st.pSort] || SORTS.rate_asc)
     .map((x) => x.p);
+}
+// 응답 완료 = 대상이 있고 미응답 0명
+const isDone = (p) => p[3] > 0 && p[6] === 0;
+function renderDone() {
+  const dv = $('#p-div').value, hq = $('#p-hq').value, q = $('#p-q').value.trim().toLowerCase();
+  const done = st.data.partners
+    .filter((p) => isDone(p) && (!dv || p[0] === dv) && (!hq || p[1] === hq) && (!q || String(p[2]).toLowerCase().includes(q)))
+    .sort((a, b) => b[3] - a[3] || String(a[2]).localeCompare(String(b[2]), 'ko'));
+  const total = st.data.partners.filter((p) => p[3] > 0 && (!dv || p[0] === dv) && (!hq || p[1] === hq)).length;
+  $('#d-count').textContent = fmt(done.length) + '곳';
+  const box = $('#d-body'), mode = box.dataset.mode;
+  const shown = done.slice(0, st.dShow);
+  const mgr = (mi, to) => (to > 0 ? (mi == null ? '<span class="chip chip--wait">미입력</span>' : fmt(mi) + '/' + fmt(to)) : '-');
+  if (!done.length) {
+    box.innerHTML = '<div class="d-empty">아직 응답을 모두 마친 파트너가 없습니다.</div>';
+  } else if (mode === 'table') {
+    box.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>파트너</th><th class="ctr">대상</th><th class="ctr">참석</th><th class="ctr">불참</th><th class="ctr">동반</th><th class="ctr">관리자</th></tr></thead><tbody>` +
+      shown.map(([d, , n, t, go, no, , comp, mi, to]) => `<tr><td>${esc(n)}<small class="sub">${esc(d)}</small></td><td class="ctr">${fmt(t)}</td><td class="ctr">${fmt(go)}</td><td class="ctr">${fmt(no)}</td><td class="ctr">${fmt(comp)}</td><td class="ctr">${mgr(mi, to)}</td></tr>`).join('') + '</tbody></table></div>';
+  } else if (mode === 'chips') {
+    box.innerHTML = '<div class="d-chips">' + shown.map(([d, , n, t, go, no, , comp]) =>
+      `<div class="d-chip"><b>${esc(n)}</b><small>${esc(d)}</small><span>대상 ${fmt(t)} · 참석 <em>${fmt(go)}</em> · 동반 ${fmt(comp)}</span></div>`).join('') + '</div>';
+  } else {
+    box.innerHTML = `<div class="d-prog"><span>완료 ${fmt(done.length)}곳 / 대상 있는 파트너 ${fmt(total)}곳</span><i><b style="width:${total ? Math.round(done.length / total * 100) : 0}%"></b></i></div><ul class="d-list">` +
+      shown.map(([d, , n, t, go, no, , comp]) => `<li><span class="ck">✓</span><div><b>${esc(n)}</b><small>${esc(d)}</small></div><span class="nums">참석 <em>${fmt(go)}</em> / ${fmt(t)}명${comp ? ` · 동반 ${fmt(comp)}` : ''}</span></li>`).join('') + '</ul>';
+  }
+  const rest = done.length - shown.length;
+  $('#d-more').innerHTML = rest > 0 ? `<button type="button" id="d-more-btn">${fmt(Math.min(CONFIG.PAGE, rest))}곳 더 보기 ›</button>` : '';
+  const b = $('#d-more-btn'); if (b) b.onclick = () => { st.dShow += CONFIG.PAGE; renderDone(); };
 }
 // 정렬 방식 (대상 0명 = 관리자만 있는 파트너는 항상 맨 뒤)
 const last0 = (a, b) => (a.rate < 0) - (b.rate < 0);
@@ -259,6 +288,7 @@ function setSort(k) {
   renderPartners();
 }
 function renderPartners() {
+  renderDone();
   const all = partnerRows();
   const rows = all.slice(0, st.pShow);
   const mgrCell = (mi, to) => (to > 0 ? (mi == null ? '<span class="chip chip--wait">미입력</span>' : fmt(mi)) : '-');
@@ -283,7 +313,7 @@ function renderPartners() {
   }).join('') || '<tr><td colspan="10" class="empty">조건에 맞는 파트너가 없습니다.</td></tr>';
 
   const more = all.length > rows.length ? ` · <button type="button" id="p-more-btn">${fmt(Math.min(CONFIG.PAGE, all.length - rows.length))}곳 더 보기 ›</button>` : '';
-  $('#p-more').innerHTML = `${fmt(all.length)}곳 중 ${fmt(rows.length)}곳 표시 · 파트너 클릭 시 미응답자 명단 확인 가능${more}`;
+  $('#p-more').innerHTML = `응답 진행 중 ${fmt(all.length)}곳 중 ${fmt(rows.length)}곳 표시 · 파트너 클릭 시 미응답자 명단 확인 가능${more}`;
   const b = $('#p-more-btn');
   if (b) b.onclick = () => { st.pShow += CONFIG.PAGE; renderPartners(); };
 }
@@ -353,7 +383,7 @@ function alertBox(msg) {
 }
 
 $('#p-xlsx').addEventListener('click', (e) => {
-  const rows = partnerRows().map(([dv, hq, name, t, go, no, wait, comp, mi, to]) => [
+  const rows = partnerRows(true).map(([dv, hq, name, t, go, no, wait, comp, mi, to]) => [
     dv, hq, name, t, go, no, wait, t ? Math.round(((go + no) / t) * 1000) / 10 : '', comp,
     to > 0 ? (mi == null ? '미입력' : mi) : '', to > 0 ? to : ''
   ]);

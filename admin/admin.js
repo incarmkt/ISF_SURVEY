@@ -302,13 +302,7 @@ function renderPartners() {
       <td class="ctr"><span class="chip ${wait ? 'chip--wait' : 'chip--zero'}">${fmt(wait)}</span></td>
       <td class="ctr">${r == null ? '-' : `<span class="pbar${r < 50 ? ' low' : ''}"><b>${r}%</b><span><i style="width:${r}%"></i></span></span>`}</td>
       <td class="ctr hide-m">${fmt(comp)}</td><td class="ctr hide-m bl">${mgrCell(mi, to)}</td><td class="ctr hide-m">${to > 0 ? fmt(to) : '-'}</td></tr>`;
-    if (open) {
-      const ws = st.data.waiting.filter((w) => w[1] === name);
-      const mgrLine = to > 0 ? `<div class="only-m" style="margin-top:8px">관리자 ${mi == null ? '미입력' : fmt(mi) + '명 입력'} / TO ${fmt(to)} · 동반 ${fmt(comp)}명 · 불참 ${fmt(no)}명</div>` : `<div class="only-m" style="margin-top:8px">동반 ${fmt(comp)}명 · 불참 ${fmt(no)}명</div>`;
-      html += `<tr class="p-detail"><td colspan="10"><div style="font-weight:700;font-size:12.5px;margin-bottom:8px">미응답자 ${fmt(ws.length)}명</div>
-        ${ws.length ? `<div class="wl">${ws.map((w) => `<span>${esc(w[2])}<small>${esc(w[3])} · ${esc(w[4])}</small></span>`).join('')}</div>` : '<div style="color:var(--muted);font-size:12.5px">모두 응답했습니다.</div>'}
-        ${mgrLine}</td></tr>`;
-    }
+    if (open) html += `<tr class="p-detail"><td colspan="10">${detailHtml(p)}</td></tr>`;
     return html;
   }).join('') || '<tr><td colspan="10" class="empty">조건에 맞는 파트너가 없습니다.</td></tr>';
 
@@ -402,3 +396,28 @@ if (ss.get()) load(false); else showLogin('');
 
 document.addEventListener('change', (e) => { if (e.target.id === 'p-sort') setSort(e.target.value); });
 document.addEventListener('click', (e) => { const b = e.target.closest('[data-sort]'); if (b) setSort(b.dataset.sort); });
+
+// ─────────────── 파트너 펼침 상세 ───────────────
+function mgrInfo(p) {
+  const [, , , , , , , , mi, to, mn, me, mt] = p;
+  if (!(to > 0)) return null;
+  return { to, mi, done: mi != null, name: mn || '-', emp: me || '-', at: mt || '' };
+}
+function detailHtml(p) {
+  const [, , name, t, go, no, wait, comp] = p;
+  const ws = st.data.waiting.filter((w) => w[1] === name);
+  const m = mgrInfo(p);
+  const box = (k, v, cls) => `<div class="dt-num${cls ? ' ' + cls : ''}"><span>${k}</span><b>${v}</b></div>`;
+  const mgr = m ? `<div class="dt-card dt-mgr">
+      <h4>관리자 <span class="st ${m.done ? 'ok' : 'no'}">${m.done ? '입력 완료' : '미입력'}</span></h4>
+      <div class="dt-big"><b>${m.done ? fmt(m.mi) : '-'}</b><span>/ TO ${fmt(m.to)}명</span></div>
+      <dl><dt>관리자</dt><dd>${esc(m.name)}</dd><dt>사원번호</dt><dd>${esc(m.emp)}</dd>${m.done ? `<dt>입력일시</dt><dd>${esc(m.at || '-')}</dd>` : ''}</dl>
+    </div>` : `<div class="dt-card dt-mgr dt-mgr--none"><h4>관리자</h4><p>이 파트너는 관리자 TO가 없습니다.</p></div>`;
+  return `<div class="dt-grid">
+    <div class="dt-card">
+      <h4>FA 응답 현황</h4>
+      <div class="dt-nums">${box('대상', fmt(t))}${box('참석', fmt(go), 'go')}${box('불참', fmt(no))}${box('미응답', fmt(wait), wait ? 'wait' : '')}${box('동반', fmt(comp))}</div>
+      <h5>미응답자 ${fmt(ws.length)}명</h5>
+      ${ws.length ? `<div class="wl">${ws.map((w) => `<span>${esc(w[2])}<small>${esc(w[3])} · ${esc(w[4])}</small></span>`).join('')}</div>` : '<p class="dt-ok">모두 응답했습니다.</p>'}
+    </div>${mgr}</div>`;
+}

@@ -204,6 +204,21 @@
     .grid2--fill .row__pct small { font-size: 12px; }
     .grid2--fill .legend { font-size: 13px; }
     @media (max-width: 899px) { .grid2--fill .row { grid-template-columns: 84px 1fr 58px; gap: 8px; } .grid2--fill .stack { height: 26px; } .grid2--fill .row__pct { font-size: 16px; } }
+    .dt-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 10px; padding: 4px 0; }
+    @media (max-width: 760px) { .dt-grid { grid-template-columns: 1fr; } }
+    .dt-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; white-space: normal; }
+    .dt-card h4 { margin: 0 0 10px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .dt-card h5 { margin: 12px 0 8px; font-size: 12.5px; color: var(--ink); }
+    .dt-nums { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .dt-num { background: #F6F9FD; border-radius: 9px; padding: 7px 4px; text-align: center; }
+    .dt-num span { display: block; font-size: 11px; color: var(--muted); font-weight: 600; } .dt-num b { font-size: 16px; }
+    .dt-num.go b { color: var(--blue); } .dt-num.wait { background: var(--wait-soft); } .dt-num.wait b { color: #B86E08; }
+    .dt-mgr .st { font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 99px; }
+    .st.ok { background: #E3F5EA; color: #16794A; } .st.no { background: var(--wait-soft); color: #B86E08; }
+    .dt-big { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; } .dt-big b { font-size: 26px; } .dt-big span { color: var(--muted); font-size: 13px; font-weight: 600; }
+    .dt-mgr dl { display: grid; grid-template-columns: 64px 1fr; gap: 5px 8px; margin: 0; font-size: 12.5px; }
+    .dt-mgr dt { color: var(--muted); } .dt-mgr dd { margin: 0; font-weight: 700; }
+    .dt-mgr--none p, .dt-ok { color: var(--muted); font-size: 12.5px; margin: 0; }
   </style>
 </head>
 <body>
@@ -340,6 +355,6 @@
     </div>
   </main>
 
-  <script src="admin.js?v=20261119d"></script>
+  <script src="admin.js?v=20261119e"></script>
 </body>
 </html>

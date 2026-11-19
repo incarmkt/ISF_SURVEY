@@ -1,4 +1,4 @@
-/* ISF 수요조사 현황 (마케팅부 전용) - 화면 동작 */
+/* ISF 수요조사 현황 - 화면 동작 */
 
 // ─────────────── 바꿀 수 있는 값 ───────────────
 const CONFIG = {
@@ -39,7 +39,7 @@ async function api(payload) {
 function showLogin(msg) {
   $('#view-login').hidden = false;
   $('#view-dash').hidden = true;
-  ['#bar-title', '#bar-tag', '#bar-tools'].forEach((s) => { $(s).hidden = true; });
+  ['#bar-title', '#bar-tools'].forEach((s) => { $(s).hidden = true; });
   const err = $('#login-err');
   err.hidden = !msg;
   err.textContent = msg || '';
@@ -50,7 +50,7 @@ function showLogin(msg) {
 function showDash() {
   $('#view-login').hidden = true;
   $('#view-dash').hidden = false;
-  ['#bar-title', '#bar-tag', '#bar-tools'].forEach((s) => { $(s).hidden = false; });
+  ['#bar-title', '#bar-tools'].forEach((s) => { $(s).hidden = false; });
 }
 
 $('#pw-eye').addEventListener('click', () => {

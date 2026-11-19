@@ -23,7 +23,7 @@ const ss = {
   clear() { mem.pw = ''; try { sessionStorage.removeItem(KEY); } catch (e) { /* noop */ } }
 };
 const mem = { pw: '' };
-const st = { data: null, pShow: CONFIG.PAGE, wShow: CONFIG.WAIT_PAGE, missAll: false, open: '' };
+const st = { pSort: 'rate_asc', data: null, pShow: CONFIG.PAGE, wShow: CONFIG.WAIT_PAGE, missAll: false, open: '' };
 
 async function api(payload) {
   try {
@@ -238,9 +238,25 @@ function partnerRows() {
   const dv = $('#p-div').value, hq = $('#p-hq').value, q = $('#p-q').value.trim().toLowerCase();
   return st.data.partners
     .filter((p) => (!dv || p[0] === dv) && (!hq || p[1] === hq) && (!q || String(p[2]).toLowerCase().includes(q)))
-    .map((p) => ({ p, rate: p[3] ? (p[4] + p[5]) / p[3] : 2 }))   // 대상 0명(관리자만)은 맨 뒤
-    .sort((a, b) => a.rate - b.rate || b.p[6] - a.p[6] || b.p[3] - a.p[3])
+    .map((p) => ({ p, rate: p[3] ? (p[4] + p[5]) / p[3] : -1 }))
+    .sort(SORTS[st.pSort] || SORTS.rate_asc)
     .map((x) => x.p);
+}
+// 정렬 방식 (대상 0명 = 관리자만 있는 파트너는 항상 맨 뒤)
+const last0 = (a, b) => (a.rate < 0) - (b.rate < 0);
+const SORTS = {
+  rate_asc:  (a, b) => last0(a, b) || a.rate - b.rate || b.p[6] - a.p[6] || b.p[3] - a.p[3],
+  rate_desc: (a, b) => last0(a, b) || b.rate - a.rate || b.p[3] - a.p[3],
+  wait_desc: (a, b) => b.p[6] - a.p[6] || a.rate - b.rate,
+  t_desc:    (a, b) => b.p[3] - a.p[3] || a.rate - b.rate
+};
+const SORT_LABEL = { rate_asc: '응답률 낮은 순', rate_desc: '응답률 높은 순', wait_desc: '미응답 많은 순', t_desc: '대상 많은 순' };
+function setSort(k) {
+  st.pSort = k; st.pShow = CONFIG.PAGE;
+  const lb = document.querySelector('#p-sort-label'); if (lb) lb.textContent = SORT_LABEL[k];
+  document.querySelectorAll('[data-sort]').forEach((b) => b.classList.toggle('on', b.dataset.sort === k));
+  const sel = document.querySelector('#p-sort'); if (sel) sel.value = k;
+  renderPartners();
 }
 function renderPartners() {
   const all = partnerRows();
@@ -353,3 +369,6 @@ $('#w-xlsx').addEventListener('click', (e) => {
 // ─────────────── 시작 ───────────────
 if (ss.get()) load(false); else showLogin('');
 
+
+document.addEventListener('change', (e) => { if (e.target.id === 'p-sort') setSort(e.target.value); });
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-sort]'); if (b) setSort(b.dataset.sort); });

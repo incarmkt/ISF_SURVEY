@@ -442,13 +442,15 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#pop').hidden) closePop(); });
 
 // 미응답자가 응답한다고 가정한 예상치 (구간별 현재 참석률·평균 동반 적용 / 최대치)
+// 서버가 동반 한도를 안 보내줄 때 쓰는 기본값(설정 시트와 동일)
+const DEF_LIM = { '4구간(1,000)': 3, '4구간(800)': 3, '4구간(600)': 3, '4구간': 3, '3구간': 2, '2구간': 1, '1구간': 0 };
 function estimate() {
   const d = st.data, t = d.total, m = d.mgr;
   const allRate = t.go + t.no ? t.go / (t.go + t.no) : 0;
   const rows = d.grades.map(([g, tt, go, no, comp, lim, wait]) => {
     tt = Number(tt) || 0; go = Number(go) || 0; no = Number(no) || 0; comp = Number(comp) || 0;
     wait = (wait === undefined || wait === null || wait === '') ? Math.max(0, tt - go - no) : Number(wait) || 0;
-    lim = Number(lim) || 0;
+    lim = (lim === undefined || lim === null || lim === '') ? (DEF_LIM[g] || 0) : Number(lim) || 0;
     const rate = go + no ? go / (go + no) : allRate;
     const avgComp = go ? comp / go : 0;
     const eGo = wait * rate, eComp = Math.min(eGo * avgComp, eGo * lim);
@@ -465,11 +467,6 @@ function estimate() {
 
 var POP_V = 'I';
 function waitPopHtml() {
-  const old = !(st.data.grades[0] && st.data.grades[0].length >= 7);
-  const warn = old ? '<p class="pp-warn">Apps Script가 최신 버전(v46)이 아니라 구간별 동반 한도를 못 받아왔어요. 새 버전 배포 후 [대시보드 숫자 즉시 갱신]을 눌러주세요.</p>' : '';
-  return warn + waitPopHtml0();
-}
-function waitPopHtml0() {
   const d = st.data, t = d.total, m = d.mgr, e = estimate();
   const rows = e.rows.slice().reverse().map((r) => `<tr><td>${esc(r.g)}</td><td class="w">${fmt(r.wait)}</td><td class="hide-m">${r.lim ? r.lim + '명' : '-'}</td><td>${fmt(r.maxComp)}</td><td class="em">${fmt(r.wait + r.maxComp)}</td></tr>`).join('');
   const addE = e.eGo + e.eComp + e.eMgr, addM = e.wait + e.maxComp + e.missTo;

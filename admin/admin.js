@@ -132,6 +132,7 @@ function render(d) {
   $('#k-no').textContent = fmt(t.no);
   $('#k-no-sub').textContent = `응답자의 ${pct(t.no, answered)}%`;
   $('#k-wait').textContent = fmt(t.wait);
+  $('#k-wait-sub').textContent = `FA ${fmt(t.wait)}명 · 관리자 ${fmt(m.missing.length)}곳`;
   $('#k-all').textContent = fmt(t.go + t.comp + m.sum);
   $('#k-all-sub').textContent = `FA ${fmt(t.go)} + 동반 ${fmt(t.comp)} + 관리자 ${fmt(m.sum)}`;
 
@@ -420,4 +421,147 @@ function detailHtml(p) {
       <h5>미응답자 ${fmt(ws.length)}명</h5>
       ${ws.length ? `<div class="wl">${ws.map((w) => `<span>${esc(w[2])}<small>${esc(w[3])} · ${esc(w[4])}</small></span>`).join('')}</div>` : '<p class="dt-ok">모두 응답했습니다.</p>'}
     </div>${mgr}</div>`;
+}
+
+// ─────────────── KPI 상세 팝업 ───────────────
+function openPop(title, html) {
+  $('#pop-title').textContent = title;
+  $('#pop-time').textContent = '기준 ' + (st.data.updatedAt || '');
+  $('#pop-body').innerHTML = html;
+  $('#pop').hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+function closePop() { $('#pop').hidden = true; document.body.style.overflow = ''; }
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-close]')) closePop();
+  if (e.target.closest('#k-wait-btn')) openPop('미응답 상세', waitPopHtml());
+  if (e.target.closest('#k-all-btn')) openPop('예상 총 인원 상세', allPopHtml());
+  if (e.target.closest('#pp-to-wait')) openPop('미응답 상세', waitPopHtml());
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#pop').hidden) closePop(); });
+
+// 미응답자가 응답한다고 가정한 예상치 (구간별 현재 참석률·평균 동반 적용 / 최대치)
+function estimate() {
+  const d = st.data, t = d.total, m = d.mgr;
+  const allRate = t.go + t.no ? t.go / (t.go + t.no) : 0;
+  const rows = d.grades.map(([g, tt, go, no, comp, lim, wait]) => {
+    const rate = go + no ? go / (go + no) : allRate;
+    const avgComp = go ? comp / go : 0;
+    const eGo = wait * rate, eComp = Math.min(eGo * avgComp, eGo * lim);
+    return { g, tt, go, no, comp, lim, wait, eGo, eComp, maxComp: wait * lim };
+  });
+  const sum = (k) => rows.reduce((a, r) => a + r[k], 0);
+  const missTo = m.missing.reduce((a, x) => a + x[2], 0);
+  const enteredTo = m.to - missTo;
+  const mRate = enteredTo ? m.sum / enteredTo : 1;
+  const now = t.go + t.comp + m.sum;
+  return { rows, now, wait: t.wait, eGo: Math.round(sum('eGo')), eComp: Math.round(sum('eComp')), maxComp: sum('maxComp'),
+           missTo, eMgr: Math.round(missTo * Math.min(1, mRate)) };
+}
+
+var POP_V = 'I';
+function waitPopHtml() {
+  const d = st.data, t = d.total, m = d.mgr, e = estimate();
+  const rows = e.rows.slice().reverse().map((r) => `<tr><td>${esc(r.g)}</td><td class="w">${fmt(r.wait)}</td><td class="hide-m">${r.lim ? r.lim + '명' : '-'}</td><td>${fmt(r.maxComp)}</td><td class="em">${fmt(r.wait + r.maxComp)}</td></tr>`).join('');
+  const addE = e.eGo + e.eComp + e.eMgr, addM = e.wait + e.maxComp + e.missTo;
+  const est = e.now + addE, max = e.now + addM;
+  let bottom = '';
+  if (POP_V === 'A') {
+    bottom = `<div class="pv-a">
+        <div class="pv-a__c main"><span>예상 인원</span><b>${fmt(est)}<i>명</i></b><small>지금 응답 추세 적용</small></div>
+        <div class="pv-a__c"><span>최대 인원</span><b>${fmt(max)}<i>명</i></b><small>미응답 전원 참석 시</small></div>
+      </div>`;
+  } else if (POP_V === 'B') {
+    const w = (x) => Math.max(2, Math.round(x / max * 100));
+    bottom = `<div class="pv-b">
+        <div class="pv-b__bar"><i class="now" style="width:${w(e.now)}%"></i><i class="est" style="width:${w(est) - w(e.now)}%"></i><i class="max" style="width:${100 - w(est)}%"></i></div>
+        <div class="pv-b__lg">
+          <div><em class="now"></em>현재<b>${fmt(e.now)}</b></div>
+          <div><em class="est"></em>예상<b>${fmt(est)}</b></div>
+          <div><em class="max"></em>최대<b>${fmt(max)}</b></div>
+        </div></div>`;
+  } else if (POP_V === 'I') {
+    const w = Math.max(2, Math.round(e.now / max * 100));
+    const cols = [
+      { k: 'now', l: '현재', s: '지금까지 응답', tot: fmt(e.now), v: [t.go, t.comp, m.sum] },
+      { k: 'add', l: '미응답 추가', s: '전원 참석 + 동반 최대', tot: fmt(addM), v: [e.wait, e.maxComp, e.missTo], plus: true },
+      { k: 'max', l: '최대', s: '', tot: fmt(max), v: [t.go + e.wait, t.comp + e.maxComp, m.sum + e.missTo] }
+    ];
+    bottom = `<table class="pv-i"><thead><tr><th></th>${cols.map((c) => `<th class="${c.k}"><span><em class="${c.k}"></em>${c.l}</span><b>${c.tot}</b>${c.s ? `<small>${c.s}</small>` : '<small>&nbsp;</small>'}</th>`).join('')}</tr>
+        <tr class="bar"><td></td><td colspan="3"><div class="pv-b__bar"><i class="now" style="width:${w}%"></i><i class="add" style="width:${100 - w}%"></i></div></td></tr></thead>
+      <tbody>${['FA', '동반', '관리자'].map((l, i) => `<tr><td>${l}</td>${cols.map((c) => `<td class="${c.k}">${c.plus ? '+' : ''}${fmt(c.v[i])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  } else if (POP_V === 'H') {
+    const w = Math.max(2, Math.round(e.now / max * 100));
+    const bar = `<div class="pv-b__bar"><i class="now" style="width:${w}%"></i><i class="add" style="width:${100 - w}%"></i></div>`;
+    const card = (k, l, s, tot, fa, cp, mg) => `<div class="pv-g__c ${k}"><span><em class="${k}"></em>${l}</span><b>${fmt(tot)}<i>명</i></b><small>${s}</small>
+        <dl><dt>FA</dt><dd>${fmt(fa)}</dd><dt>동반</dt><dd>${fmt(cp)}</dd><dt>관리자</dt><dd>${fmt(mg)}</dd></dl></div>`;
+    bottom = `${bar}<div class="pv-g pv-g--2">
+        ${card('now', '현재', '지금까지 응답한 인원', e.now, t.go, t.comp, m.sum)}
+        <div class="pv-plus">+${fmt(addM)}</div>
+        ${card('max', '최대', '미응답 전원 참석 + 동반 최대', max, t.go + e.wait, t.comp + e.maxComp, m.sum + e.missTo)}
+      </div>`;
+  } else if (POP_V === 'F' || POP_V === 'G') {
+    const w = (x) => Math.max(2, Math.round(x / max * 100));
+    const bar = `<div class="pv-b__bar"><i class="now" style="width:${w(e.now)}%"></i><i class="est" style="width:${w(est) - w(e.now)}%"></i><i class="max" style="width:${100 - w(est)}%"></i></div>`;
+    const cols = [
+      { k: 'now', l: '현재', s: '지금까지 응답', tot: e.now, fa: t.go, cp: t.comp, mg: m.sum },
+      { k: 'est', l: '예상', s: '응답 추세 적용', tot: est, fa: t.go + e.eGo, cp: t.comp + e.eComp, mg: m.sum + e.eMgr },
+      { k: 'max', l: '최대', s: '전원 참석 시', tot: max, fa: t.go + e.wait, cp: t.comp + e.maxComp, mg: m.sum + e.missTo }
+    ];
+    if (POP_V === 'F') {
+      bottom = `${bar}<table class="pp-tbl pv-f"><thead><tr><th></th>${cols.map((c) => `<th class="${c.k}"><span><em class="${c.k}"></em>${c.l}</span><b>${fmt(c.tot)}</b><small>${c.s}</small></th>`).join('')}</tr></thead>
+        <tbody>${[['FA', 'fa'], ['동반', 'cp'], ['관리자', 'mg']].map(([l, k]) => `<tr><td>${l}</td>${cols.map((c) => `<td class="${c.k}">${fmt(c[k])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    } else {
+      bottom = `${bar}<div class="pv-g">${cols.map((c) => `<div class="pv-g__c ${c.k}"><span><em class="${c.k}"></em>${c.l}</span><b>${fmt(c.tot)}<i>명</i></b><small>${c.s}</small>
+        <dl><dt>FA</dt><dd>${fmt(c.fa)}</dd><dt>동반</dt><dd>${fmt(c.cp)}</dd><dt>관리자</dt><dd>${fmt(c.mg)}</dd></dl></div>`).join('')}</div>`;
+    }
+  } else if (POP_V === 'D' || POP_V === 'E') {
+    const w = (x) => Math.max(2, Math.round(x / max * 100));
+    const bar = `<div class="pv-b__bar"><i class="now" style="width:${w(e.now)}%"></i><i class="est" style="width:${w(est) - w(e.now)}%"></i><i class="max" style="width:${100 - w(est)}%"></i></div>`;
+    const row = (k, a, b, c) => `<tr><td>${k}</td><td>${fmt(a)}</td><td>${fmt(b)}</td><td>${fmt(c)}</td></tr>`;
+    const body = row('FA', t.go, t.go + e.eGo, t.go + e.wait) + row('동반', t.comp, t.comp + e.eComp, t.comp + e.maxComp) + row('관리자', m.sum, m.sum + e.eMgr, m.sum + e.missTo);
+    if (POP_V === 'D') {
+      bottom = `${bar}<table class="pp-tbl pv-d"><thead><tr><th></th><th><em class="now"></em>현재</th><th><em class="est"></em>예상</th><th><em class="max"></em>최대</th></tr></thead>
+        <tbody>${body}</tbody><tfoot><tr><td>합계</td><td>${fmt(e.now)}</td><td class="hl">${fmt(est)}</td><td>${fmt(max)}</td></tr></tfoot></table>`;
+    } else {
+      bottom = `<div class="pv-b__lg pv-e">
+          <div><em class="now"></em>현재<b>${fmt(e.now)}</b></div>
+          <div class="on"><em class="est"></em>예상<b>${fmt(est)}</b></div>
+          <div><em class="max"></em>최대<b>${fmt(max)}</b></div></div>${bar}
+        <table class="pp-tbl pv-d pv-d--sm"><tbody>${body}</tbody></table>`;
+    }
+  } else {
+    bottom = `<table class="pp-tbl pv-c"><thead><tr><th></th><th>현재</th><th>예상</th><th>최대</th></tr></thead><tbody>
+        <tr><td>FA</td><td>${fmt(t.go)}</td><td>${fmt(t.go + e.eGo)}</td><td>${fmt(t.go + e.wait)}</td></tr>
+        <tr><td>동반</td><td>${fmt(t.comp)}</td><td>${fmt(t.comp + e.eComp)}</td><td>${fmt(t.comp + e.maxComp)}</td></tr>
+        <tr><td>관리자</td><td>${fmt(m.sum)}</td><td>${fmt(m.sum + e.eMgr)}</td><td>${fmt(m.sum + e.missTo)}</td></tr></tbody>
+        <tfoot><tr><td>합계</td><td>${fmt(e.now)}</td><td class="hl">${fmt(est)}</td><td>${fmt(max)}</td></tr></tfoot></table>`;
+  }
+  return `<div class="pp-tiles">
+      <div class="pp-tile wait"><span>FA 미응답</span><b>${fmt(t.wait)}명</b><small>달성자 ${fmt(t.t)}명 중 ${Math.round(pct(t.wait, t.t))}%</small></div>
+      <div class="pp-tile"><span>관리자 미입력</span><b>TO ${fmt(e.missTo)}명</b><small>파트너 ${fmt(m.missing.length)}곳 아직 입력 전</small></div>
+    </div>
+    <h4 class="pp-h">구간별 미응답</h4>
+    <table class="pp-tbl"><thead><tr><th>구간</th><th>미응답</th><th class="hide-m">동반 한도</th><th>최대 동반</th><th>최대 인원</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td>합계</td><td>${fmt(e.wait)}</td><td class="hide-m"></td><td>${fmt(e.maxComp)}</td><td>${fmt(e.wait + e.maxComp)}</td></tr></tfoot></table>
+    <h4 class="pp-h">최대 예상 인원</h4>
+    ${bottom}
+    <p class="pp-note">최대 = 현재 + FA 미응답자(동반 최대) + 관리자 미입력 TO</p>`;
+}
+
+function allPopHtml() {
+  const d = st.data, t = d.total, m = d.mgr;
+  const rows = d.grades.slice().reverse().map(([g, tt, go, no, comp]) => `<tr><td>${esc(g)}</td><td class="hide-m sep">${fmt(tt)}</td><td>${fmt(go + no)}</td><td>${fmt(go)}</td><td class="hide-m">${fmt(no)}</td><td>${fmt(comp)}</td><td class="em">${fmt(go + comp)}</td></tr>`).join('');
+  const now = t.go + t.comp + m.sum;
+  return `<div class="pp-eq"><b class="big">${fmt(now)}명</b><span>=</span> FA 참석 <em>${fmt(t.go)}</em> <span>+</span> 동반 <em>${fmt(t.comp)}</em> <span>+</span> 관리자 <em>${fmt(m.sum)}</em></div>
+    <h4 class="pp-h">구간별 참석·동반 <small>응답자 기준</small></h4>
+    <table class="pp-tbl"><thead><tr><th>구간</th><th class="hide-m sep">대상</th><th>응답</th><th>참석</th><th class="hide-m">불참</th><th>동반</th><th>참석+동반</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td>합계</td><td class="hide-m sep">${fmt(t.t)}</td><td>${fmt(t.go + t.no)}</td><td>${fmt(t.go)}</td><td class="hide-m">${fmt(t.no)}</td><td>${fmt(t.comp)}</td><td>${fmt(t.go + t.comp)}</td></tr></tfoot></table>
+    <h4 class="pp-h">관리자</h4>
+    <table class="pp-tbl"><thead><tr><th>구분</th><th>입력 파트너</th><th>관리자 TO</th><th>입력 인원</th></tr></thead>
+      <tbody><tr><td>입력 완료</td><td>${fmt(m.entered)}곳</td><td>${fmt(m.to - m.missing.reduce((a, x) => a + x[2], 0))}</td><td class="em">${fmt(m.sum)}</td></tr>
+      <tr><td>미입력</td><td class="w">${fmt(m.missing.length)}곳</td><td>${fmt(m.missing.reduce((a, x) => a + x[2], 0))}</td><td>-</td></tr></tbody></table>
+    <p class="pp-note">미응답 FA ${fmt(t.wait)}명·관리자 ${fmt(m.missing.length)}곳 제외 · <button type="button" class="pp-link" id="pp-to-wait">미응답 포함 최대 인원 보기 ›</button></p>`;
 }
